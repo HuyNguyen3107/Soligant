@@ -17,6 +17,15 @@ app.use(morgan("dev"));
 // Import utility
 const { getCurrentUTCDateTime } = require("./utils/date.util");
 
+// Import routes
+const authRoutes = require("./routes/auth.routes");
+const userRoutes = require("./routes/user.routes");
+const categoryRoutes = require("./routes/category.routes");
+const collectionRoutes = require("./routes/collection.routes");
+const productRoutes = require("./routes/product.routes");
+const orderRoutes = require("./routes/order.routes");
+const inventoryRoutes = require("./routes/inventory.routes");
+
 // Thiết lập current user (demo)
 const CURRENT_USER = "HuyNguyen3107";
 
@@ -26,8 +35,18 @@ app.get("/", (req, res) => {
     message: "Soligant API is running",
     currentDateTime: getCurrentUTCDateTime(),
     currentUser: CURRENT_USER,
+    version: "1.0.0",
   });
 });
+
+// API Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/collections", collectionRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/inventory", inventoryRoutes);
 
 // Xử lý lỗi 404
 app.use((req, res) => {
@@ -50,3 +69,5 @@ app.listen(PORT, () => {
   console.log(`Current UTC time: ${getCurrentUTCDateTime()}`);
   console.log(`Current user: ${CURRENT_USER}`);
 });
+
+module.exports = app;
