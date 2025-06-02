@@ -25,6 +25,8 @@ const collectionRoutes = require("./routes/collection.routes");
 const productRoutes = require("./routes/product.routes");
 const orderRoutes = require("./routes/order.routes");
 const inventoryRoutes = require("./routes/inventory.routes");
+const shippingRoutes = require("./routes/shipping.routes");
+const statisticsRoutes = require("./routes/statistics.routes");
 
 // Thiết lập current user (demo)
 const CURRENT_USER = "HuyNguyen3107";
@@ -47,6 +49,8 @@ app.use("/api/collections", collectionRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/inventory", inventoryRoutes);
+app.use("/api/shipping", shippingRoutes);
+app.use("/api/statistics", statisticsRoutes);
 
 // Xử lý lỗi 404
 app.use((req, res) => {
