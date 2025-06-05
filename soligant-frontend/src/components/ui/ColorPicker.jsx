@@ -1,3 +1,4 @@
+// src/components/ui/ColorPicker.jsx
 import { useState, useEffect, useRef } from "react";
 
 const ColorPicker = ({ colors, selectedColor, onSelectColor, label }) => {
@@ -25,26 +26,28 @@ const ColorPicker = ({ colors, selectedColor, onSelectColor, label }) => {
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative mb-4" ref={dropdownRef}>
       {label && (
-        <label className="block text-sm font-medium mb-1">{label}</label>
+        <label className="block text-sm font-medium mb-2 font-utm-avo">
+          {label}
+        </label>
       )}
 
       {/* Selected color display */}
       <div
-        className="w-full h-10 rounded border border-gray-300 cursor-pointer flex items-center px-3"
+        className="w-full h-11 rounded border border-gray-300 cursor-pointer flex items-center px-3"
         onClick={() => setIsOpen(!isOpen)}
       >
         {selectedColor ? (
           <>
             <div
-              className="w-6 h-6 rounded-full mr-2"
-              style={{ backgroundColor: selectedColor }}
+              className="w-6 h-6 rounded-full mr-2 border border-gray-300"
+              style={{ backgroundColor: selectedColor.colorCode }}
             />
-            <span>{selectedColor}</span>
+            <span className="font-utm-avo">{selectedColor.name}</span>
           </>
         ) : (
-          <span className="text-gray-500">Chọn màu</span>
+          <span className="text-gray-500 font-utm-avo">Chọn màu</span>
         )}
       </div>
 
@@ -55,15 +58,22 @@ const ColorPicker = ({ colors, selectedColor, onSelectColor, label }) => {
             {colors.map((color, index) => (
               <div
                 key={index}
-                className={`w-8 h-8 rounded-full cursor-pointer border hover:scale-110 transition-transform ${
-                  color === selectedColor
-                    ? "border-2 border-black"
-                    : "border-gray-300"
-                }`}
-                style={{ backgroundColor: color }}
+                className={`flex flex-col items-center cursor-pointer p-1 rounded hover:bg-gray-100`}
                 onClick={() => handleColorSelect(color)}
-                title={color}
-              />
+              >
+                <div
+                  className={`w-8 h-8 rounded-full border hover:scale-110 transition-transform ${
+                    selectedColor && color.colorCode === selectedColor.colorCode
+                      ? "border-2 border-black"
+                      : "border-gray-300"
+                  }`}
+                  style={{ backgroundColor: color.colorCode }}
+                  title={color.name}
+                />
+                <span className="text-xs mt-1 text-center truncate w-full font-utm-avo">
+                  {color.name}
+                </span>
+              </div>
             ))}
           </div>
         </div>

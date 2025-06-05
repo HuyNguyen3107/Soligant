@@ -1,8 +1,10 @@
+// src/routes/AppRoutes.jsx
 import { Routes, Route } from "react-router-dom";
 import PublicLayout from "../layouts/PublicLayout";
 import HomePage from "../pages/HomePage";
 import CollectionsPage from "../pages/CollectionsPage";
 import ProductCustomizePage from "../pages/ProductCustomizePage";
+import BackgroundCustomizePage from "../pages/BackgroundCustomizePage";
 import NotFoundPage from "../pages/NotFoundPage";
 
 const AppRoutes = () => {
@@ -15,6 +17,10 @@ const AppRoutes = () => {
         <Route
           path="collections/:collectionId/customize"
           element={<ProductCustomizePage />}
+        />
+        <Route
+          path="collections/:collectionId/background"
+          element={<BackgroundCustomizePage />}
         />
         {/* Thêm routes khác sau */}
       </Route>
