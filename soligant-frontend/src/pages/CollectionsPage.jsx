@@ -73,7 +73,7 @@ const CollectionsPage = () => {
       <section className="bg-soligant-primary text-white py-12">
         <div className="container mx-auto px-4 text-center">
           <motion.h1
-            className="text-4xl md:text-5xl font-rafgins mb-4 text-white"
+            className="text-4xl md:text-5xl font-utm-avo mb-4 text-white"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -128,7 +128,7 @@ const CollectionsPage = () => {
                     className="w-full h-64 object-cover"
                   />
                   <div className="p-6">
-                    <h2 className="text-2xl font-rafgins text-soligant-primary mb-3">
+                    <h2 className="text-2xl font-utm-avo text-soligant-primary mb-3">
                       {collection.display_name}
                     </h2>
                     <p className="text-gray-600 mb-4">

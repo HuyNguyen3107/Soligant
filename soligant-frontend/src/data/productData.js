@@ -429,18 +429,9 @@ export const pets = [
   },
 ];
 
-// Combo ưu đãi
-export const combos = [
-  {
-    id: "combo_graduation",
-    name: "Combo tốt nghiệp ưu đãi",
-    description: "Tóc bất kỳ + Mũ tốt nghiệp + Tặng 01 hoa cầm tay",
-    price: 280000,
-    originalPrice: 290000,
-    imageUrl:
-      "https://via.placeholder.com/300?text=Combo+T%E1%BB%91t+Nghi%E1%BB%87p",
-    version: "version1",
-  },
+// Combo ưu đãi - THAY ĐỔI CẤU TRÚC
+// 1. Accessory combo - Chỉ thay thế phụ kiện/thú cưng
+export const accessoryCombo = [
   {
     id: "combo_dog_flower",
     name: "Combo chó + phụ kiện",
@@ -448,7 +439,8 @@ export const combos = [
     price: 25000,
     originalPrice: 30000,
     imageUrl: "https://via.placeholder.com/300?text=Combo+Ch%C3%B3+%26+Hoa",
-    version: null,
+    includesText: "Chó trắng + Hoa hồng (Tiết kiệm 5.000đ)",
+    includes: ["pet_dog_white1", "acc_flower_pink"],
   },
   {
     id: "combo_bag_flower",
@@ -457,9 +449,71 @@ export const combos = [
     price: 15000,
     originalPrice: 20000,
     imageUrl: "https://via.placeholder.com/300?text=Combo+T%C3%BAi+%26+Hoa",
-    version: null,
+    includesText: "Túi xách + Hoa trắng (Tiết kiệm 5.000đ)",
+    includes: ["acc_bag", "acc_flower_white"],
+  },
+  {
+    id: "combo_teddy_flower",
+    name: "Combo gấu + hoa",
+    description: "Gấu bé xinh + Hoa hồng",
+    price: 20000,
+    originalPrice: 25000,
+    imageUrl: "https://via.placeholder.com/300?text=Combo+G%E1%BA%A5u+%26+Hoa",
+    includesText: "Gấu bé + Hoa hồng (Tiết kiệm 5.000đ)",
+    includes: ["acc_teddy", "acc_flower_pink"],
   },
 ];
+
+// 2. Full Combo - Thay thế toàn bộ (bao gồm cả version)
+export const fullCombo = [
+  {
+    id: "combo_graduation",
+    name: "Combo tốt nghiệp ưu đãi",
+    description: "Khung 01 LEGO + Tóc bất kỳ + Mũ tốt nghiệp + Hoa cầm tay",
+    price: 280000,
+    originalPrice: 290000,
+    imageUrl:
+      "https://via.placeholder.com/300?text=Combo+T%E1%BB%91t+Nghi%E1%BB%87p",
+    includes: {
+      version: "version1",
+      hair: true,
+      accessories: ["acc_grad_cap", "acc_flower_blue"],
+    },
+    includesText:
+      "Version 1 + Tóc + Mũ tốt nghiệp + Hoa xanh (Tiết kiệm 10.000đ)",
+  },
+  {
+    id: "combo_valentine",
+    name: "Combo Valentine's Day",
+    description: "Khung 02 LEGO + Tóc bất kỳ + Hoa hồng x2",
+    price: 285000,
+    originalPrice: 300000,
+    imageUrl: "https://via.placeholder.com/300?text=Combo+Valentine",
+    includes: {
+      version: "version2",
+      hair: true,
+      accessories: ["acc_flower_pink", "acc_flower_red"],
+    },
+    includesText: "Version 2 + Tóc + Hoa hồng x2 (Tiết kiệm 15.000đ)",
+  },
+  {
+    id: "combo_anniversary",
+    name: "Combo kỷ niệm trọn gói",
+    description: "Khung 02 LEGO + Tóc bất kỳ + Túi xách + Hoa",
+    price: 290000,
+    originalPrice: 310000,
+    imageUrl: "https://via.placeholder.com/300?text=Combo+Anniversary",
+    includes: {
+      version: "version2",
+      hair: true,
+      accessories: ["acc_bag", "acc_flower_purple"],
+    },
+    includesText: "Version 2 + Tóc + Túi xách + Hoa tím (Tiết kiệm 20.000đ)",
+  },
+];
+
+// Gộp tất cả combo để hiển thị trên giao diện
+export const combos = [...accessoryCombo, ...fullCombo];
 
 // Mẫu background
 export const backgroundTemplates = [

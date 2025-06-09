@@ -39,7 +39,7 @@ const HomePage = () => {
       <section className="bg-soligant-primary text-white py-20">
         <div className="container mx-auto px-4 text-center">
           <motion.h1
-            className="text-5xl md:text-6xl font-rafgins mb-6 text-white"
+            className="text-5xl md:text-6xl font-utm-avo mb-6 text-white"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -70,7 +70,7 @@ const HomePage = () => {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <motion.h2
-            className="text-3xl md:text-4xl font-rafgins text-soligant-primary text-center mb-10"
+            className="text-3xl md:text-4xl font-utm-avo text-soligant-primary text-center mb-10"
             variants={fadeIn}
             initial="hidden"
             whileInView="visible"
@@ -96,7 +96,7 @@ const HomePage = () => {
                   className="w-full h-64 object-cover"
                 />
                 <div className="p-6">
-                  <h3 className="text-2xl font-rafgins text-soligant-primary mb-2">
+                  <h3 className="text-2xl font-utm-avo text-soligant-primary mb-2">
                     {collection.name}
                   </h3>
                   <p className="mb-4">{collection.description}</p>
@@ -117,7 +117,7 @@ const HomePage = () => {
       <section className="bg-soligant-secondary py-16">
         <div className="container mx-auto px-4">
           <motion.h2
-            className="text-3xl md:text-4xl font-rafgins text-soligant-primary text-center mb-10"
+            className="text-3xl md:text-4xl font-utm-avo text-soligant-primary text-center mb-10"
             variants={fadeIn}
             initial="hidden"
             whileInView="visible"
@@ -179,7 +179,7 @@ const HomePage = () => {
       <section className="py-16">
         <div className="container mx-auto px-4 text-center">
           <motion.h2
-            className="text-3xl md:text-4xl font-rafgins text-soligant-primary mb-6"
+            className="text-3xl md:text-4xl font-utm-avo text-soligant-primary mb-6"
             variants={fadeIn}
             initial="hidden"
             whileInView="visible"

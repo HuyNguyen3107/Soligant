@@ -10,22 +10,18 @@ import Button from "../components/ui/Button";
 import Loading from "../components/ui/Loading";
 import FormInput from "../components/ui/FormInput";
 import BackgroundTemplateSelector from "../components/ui/BackgroundTemplateSelector";
-import CanvaLinkModal from "../components/ui/CanvaLinkModal";
 
 // Data
 import { backgroundTemplates } from "../data/productData";
-
-// Services
-import { createCanvaDesign } from "../services/canvaService";
 
 // Redux actions
 import {
   setBackgroundTemplate,
   setBackgroundTitle,
   setBackgroundDate,
-  setBackgroundNames,
+  setBackgroundName,
   setBackgroundSong,
-  setCanvaUrl,
+  setBackground,
   setCurrentStep,
 } from "../redux/features/customizationSlice";
 
@@ -39,8 +35,6 @@ const BackgroundCustomizePage = () => {
   const [collection, setCollectionData] = useState(null);
   const [error, setError] = useState(null);
   const [activeCategory, setActiveCategory] = useState("all");
-  const [isCreatingDesign, setIsCreatingDesign] = useState(false);
-  const [showCanvaModal, setShowCanvaModal] = useState(false);
 
   // Redux state
   const customization = useSelector((state) => state.customization);
@@ -97,51 +91,27 @@ const BackgroundCustomizePage = () => {
     const template = backgroundTemplates.find((t) => t.id === templateId);
     if (template) {
       dispatch(setBackgroundTemplate(template));
-
-      // Reset canvaUrl when changing template
-      if (bg.canvaUrl) {
-        dispatch(setCanvaUrl(""));
-      }
     }
   };
 
   const handleTitleChange = (e) => {
     dispatch(setBackgroundTitle(e.target.value));
-
-    // Reset canvaUrl when changing content
-    if (bg.canvaUrl) {
-      dispatch(setCanvaUrl(""));
-    }
   };
 
   const handleDateChange = (e) => {
     dispatch(setBackgroundDate(e.target.value));
-
-    // Reset canvaUrl when changing content
-    if (bg.canvaUrl) {
-      dispatch(setCanvaUrl(""));
-    }
   };
 
   const handleNamesChange = (e) => {
-    dispatch(setBackgroundNames(e.target.value));
-
-    // Reset canvaUrl when changing content
-    if (bg.canvaUrl) {
-      dispatch(setCanvaUrl(""));
-    }
+    // Sửa từ setBackgroundNames thành setBackgroundName
+    dispatch(setBackgroundName(e.target.value));
   };
 
   const handleSongChange = (e) => {
     dispatch(setBackgroundSong(e.target.value));
-
-    // Reset canvaUrl when changing content
-    if (bg.canvaUrl) {
-      dispatch(setCanvaUrl(""));
-    }
   };
 
-  const handleCreateCanvaDesign = async () => {
+  const handleCompleteCustomization = () => {
     // Validation
     if (!bg.template) {
       toast.warning("Vui lòng chọn mẫu background");
@@ -153,41 +123,22 @@ const BackgroundCustomizePage = () => {
       return;
     }
 
-    if (bg.template.hasNames && !bg.names.trim()) {
+    if (bg.template.hasNames && !bg.name.trim()) {
       toast.warning("Vui lòng nhập tên người nhận");
       return;
     }
 
-    try {
-      setIsCreatingDesign(true);
+    // Đánh dấu hoàn thành tùy chỉnh background
+    // Thay đổi từ setBackgroundCustomizationComplete sang setBackground
+    dispatch(
+      setBackground({
+        customizationComplete: true,
+      })
+    );
 
-      // Prepare data for Canva API
-      const designData = {
-        templateId: bg.template.id, // ID của template trên Canva
-        title: bg.title || " ", // Default to space if empty
-        date: bg.date || " ",
-        names: bg.names || " ",
-        song: bg.song || " ",
-        collectionId: collectionId,
-        version: customization.version.selected,
-      };
-
-      // Call API to create design on Canva
-      const response = await createCanvaDesign(designData);
-
-      // Update Redux with Canva URL
-      dispatch(setCanvaUrl(response.canvaUrl));
-
-      // Show modal with Canva link
-      setShowCanvaModal(true);
-
-      toast.success("Thiết kế background đã được tạo thành công!");
-    } catch (error) {
-      console.error("Error creating Canva design:", error);
-      toast.error("Có lỗi xảy ra khi tạo thiết kế. Vui lòng thử lại sau.");
-    } finally {
-      setIsCreatingDesign(false);
-    }
+    toast.success(
+      "Đã hoàn thành tùy chỉnh background! Bạn có thể tiếp tục đặt hàng."
+    );
   };
 
   const handleProceedToCheckout = () => {
@@ -202,18 +153,22 @@ const BackgroundCustomizePage = () => {
       return;
     }
 
-    if (bg.template.hasNames && !bg.names.trim()) {
+    if (bg.template.hasNames && !bg.name.trim()) {
       toast.warning("Vui lòng nhập tên người nhận");
       return;
     }
 
-    // Nếu chưa tạo design trên Canva, tạo trước
-    if (!bg.isCanvaDesignCreated) {
-      toast.warning("Vui lòng tạo thiết kế background trước khi tiếp tục");
-      return;
+    // Nếu chưa hoàn thành tùy chỉnh background, tự động hoàn thành
+    if (!bg.customizationComplete) {
+      // Thay đổi từ setBackgroundCustomizationComplete sang setBackground
+      dispatch(
+        setBackground({
+          customizationComplete: true,
+        })
+      );
     }
 
-    // Tiếp tục đến trang thanh toán
+    // Tiếp tục đến trang đặt hàng
     navigate(`/checkout`);
   };
 
@@ -248,6 +203,14 @@ const BackgroundCustomizePage = () => {
   // Tìm template được chọn
   const selectedTemplateData = bg.template;
 
+  // Format giá combo
+  const getComboName = () => {
+    if (customization.fullCombo) {
+      return customization.fullCombo.name;
+    }
+    return "";
+  };
+
   return (
     <div className="container mx-auto py-8 px-4">
       <motion.h1
@@ -279,6 +242,9 @@ const BackgroundCustomizePage = () => {
                 <h3 className="font-bold text-lg font-utm-avo">
                   {bg.template.name}
                 </h3>
+                <p className="text-sm text-gray-600 font-utm-avo mb-4">
+                  {bg.template.description}
+                </p>
 
                 {/* Hiển thị thông tin nhập */}
                 <div className="mt-4 text-sm">
@@ -294,9 +260,9 @@ const BackgroundCustomizePage = () => {
                     </p>
                   )}
 
-                  {bg.template.hasNames && bg.names && (
+                  {bg.template.hasNames && bg.name && (
                     <p className="mb-1 font-utm-avo">
-                      <span className="font-bold">Tên:</span> {bg.names}
+                      <span className="font-bold">Tên:</span> {bg.name}
                     </p>
                   )}
 
@@ -307,34 +273,16 @@ const BackgroundCustomizePage = () => {
                   )}
                 </div>
 
-                {/* Nút tạo thiết kế Canva */}
-                <div className="mt-4">
-                  {bg.isCanvaDesignCreated ? (
-                    <Button
-                      variant="secondary"
-                      className="w-full"
-                      onClick={() => setShowCanvaModal(true)}
-                    >
-                      Xem thiết kế trên Canva
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="secondary"
-                      className="w-full"
-                      onClick={handleCreateCanvaDesign}
-                      disabled={isCreatingDesign}
-                    >
-                      {isCreatingDesign ? (
-                        <span className="flex items-center justify-center">
-                          <span className="mr-2">Đang tạo thiết kế</span>
-                          <Loading size="small" color="white" />
-                        </span>
-                      ) : (
-                        "Tạo thiết kế trên Canva"
-                      )}
-                    </Button>
-                  )}
-                </div>
+                {/* Thông báo cho admin */}
+                {bg.customizationComplete && (
+                  <div className="mt-4 p-3 bg-green-50 rounded-lg">
+                    <p className="text-sm text-green-700 font-utm-avo">
+                      ✅ <strong>Đã hoàn thành tùy chỉnh!</strong>
+                      <br />
+                      Nhân viên sẽ tạo design dựa trên thông tin này.
+                    </p>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="text-center p-8 bg-gray-100 rounded-lg mb-6">
@@ -349,11 +297,23 @@ const BackgroundCustomizePage = () => {
               <h3 className="font-bold text-soligant-primary mb-2 font-utm-avo">
                 Sản phẩm đã chọn:
               </h3>
-              <p className="font-utm-avo mb-1">
-                {customization.version.selected === "version1"
-                  ? "Version 1 - Khung tranh có 01 LEGO"
-                  : "Version 2 - Khung tranh có 02 LEGO"}
-              </p>
+              {customization.fullCombo ? (
+                <p className="font-utm-avo mb-1">
+                  {getComboName()} (Combo trọn bộ)
+                </p>
+              ) : (
+                <p className="font-utm-avo mb-1">
+                  {customization.version.selected === "version1"
+                    ? "Version 1 - Khung tranh có 01 LEGO"
+                    : "Version 2 - Khung tranh có 02 LEGO"}
+                </p>
+              )}
+
+              {customization.accessoryCombo && (
+                <p className="font-utm-avo mb-1">
+                  {customization.accessoryCombo.name} (Combo phụ kiện)
+                </p>
+              )}
             </div>
 
             {/* Tổng tiền */}
@@ -373,15 +333,9 @@ const BackgroundCustomizePage = () => {
               variant="primary"
               className="w-full mt-6"
               onClick={handleProceedToCheckout}
-              disabled={!bg.isCanvaDesignCreated}
             >
               Tiến hành đặt hàng
             </Button>
-            {!bg.isCanvaDesignCreated && (
-              <p className="text-xs text-center mt-2 text-red-500 font-utm-avo">
-                * Vui lòng tạo thiết kế trước khi đặt hàng
-              </p>
-            )}
           </div>
         </div>
 
@@ -399,7 +353,7 @@ const BackgroundCustomizePage = () => {
                 {backgroundCategories.map((category) => (
                   <button
                     key={category.id}
-                    className={`px-4 py-2 rounded-full font-utm-avo ${
+                    className={`px-4 py-2 rounded-full font-utm-avo transition-colors ${
                       activeCategory === category.id
                         ? "bg-soligant-primary text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -428,6 +382,14 @@ const BackgroundCustomizePage = () => {
                 Tùy chỉnh nội dung
               </h2>
 
+              <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+                <p className="text-sm text-blue-700 font-utm-avo">
+                  <strong>💡 Lưu ý:</strong> Thông tin bạn nhập sẽ được nhân
+                  viên sử dụng để tạo background tùy chỉnh. Bạn sẽ nhận được ảnh
+                  demo trước khi quyết định chốt đơn.
+                </p>
+              </div>
+
               {selectedTemplateData.hasTitle && (
                 <FormInput
                   label="Tiêu đề"
@@ -455,7 +417,7 @@ const BackgroundCustomizePage = () => {
                 <FormInput
                   label="Tên người nhận"
                   id="background-names"
-                  value={bg.names}
+                  value={bg.name}
                   onChange={handleNamesChange}
                   placeholder="VD: Anh Đế & Em Hằng"
                   maxLength={50}
@@ -475,55 +437,92 @@ const BackgroundCustomizePage = () => {
               )}
 
               <div className="mt-6">
-                <Button
-                  variant="primary"
-                  onClick={handleCreateCanvaDesign}
-                  disabled={isCreatingDesign}
-                  className="w-full"
-                >
-                  {isCreatingDesign ? (
-                    <span className="flex items-center justify-center">
-                      <span className="mr-2">Đang tạo thiết kế</span>
-                      <Loading size="small" color="white" />
-                    </span>
-                  ) : bg.isCanvaDesignCreated ? (
-                    "Cập nhật thiết kế"
-                  ) : (
-                    "Tạo thiết kế trên Canva"
-                  )}
-                </Button>
-
-                {bg.isCanvaDesignCreated && (
-                  <p className="text-center text-green-600 mt-2 font-utm-avo">
-                    ✓ Đã tạo thiết kế
-                  </p>
+                {!bg.customizationComplete ? (
+                  <Button
+                    variant="primary"
+                    onClick={handleCompleteCustomization}
+                    className="w-full"
+                  >
+                    Hoàn thành tùy chỉnh Background
+                  </Button>
+                ) : (
+                  <div className="text-center">
+                    <p className="text-green-600 mb-3 font-utm-avo">
+                      ✅ Đã hoàn thành tùy chỉnh background
+                    </p>
+                    <Button
+                      variant="secondary"
+                      onClick={() =>
+                        // Thay đổi từ setBackgroundCustomizationComplete sang setBackground
+                        dispatch(
+                          setBackground({
+                            customizationComplete: false,
+                          })
+                        )
+                      }
+                      className="w-full"
+                    >
+                      Chỉnh sửa lại
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>
           )}
+
+          {/* Hướng dẫn quy trình */}
+          <div className="bg-gray-50 rounded-lg p-6 mb-8">
+            <h3 className="text-lg font-bold mb-4 font-utm-avo">
+              🔄 Quy trình tiếp theo
+            </h3>
+            <div className="space-y-3">
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0 w-6 h-6 bg-soligant-primary text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  1
+                </div>
+                <p className="font-utm-avo text-sm">
+                  Bạn hoàn thành đặt hàng với thông tin tùy chỉnh
+                </p>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0 w-6 h-6 bg-soligant-primary text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  2
+                </div>
+                <p className="font-utm-avo text-sm">
+                  Nhân viên tạo background design dựa trên thông tin của bạn
+                </p>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0 w-6 h-6 bg-soligant-primary text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  3
+                </div>
+                <p className="font-utm-avo text-sm">
+                  Bạn nhận ảnh demo và quyết định chốt đơn hoặc yêu cầu điều
+                  chỉnh
+                </p>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0 w-6 h-6 bg-soligant-primary text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  4
+                </div>
+                <p className="font-utm-avo text-sm">
+                  Sau khi chốt đơn, chúng tôi sẽ sản xuất và giao hàng
+                </p>
+              </div>
+            </div>
+          </div>
 
           {/* Navigation buttons */}
           <div className="flex justify-between mt-8">
             <Button variant="outline" onClick={handleBackToCustomize}>
               Quay lại tùy chỉnh sản phẩm
             </Button>
-            <Button
-              variant="primary"
-              onClick={handleProceedToCheckout}
-              disabled={!bg.isCanvaDesignCreated}
-            >
+            <Button variant="primary" onClick={handleProceedToCheckout}>
               Tiến hành đặt hàng
             </Button>
           </div>
         </div>
       </div>
-
-      {/* Canva Link Modal */}
-      <CanvaLinkModal
-        isOpen={showCanvaModal}
-        onClose={() => setShowCanvaModal(false)}
-        canvaUrl={bg.canvaUrl}
-      />
     </div>
   );
 };

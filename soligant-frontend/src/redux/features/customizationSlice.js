@@ -1,350 +1,408 @@
 // src/redux/features/customizationSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
+// Giá cố định của các phiên bản
+const VERSION_PRICES = {
+  version1: 245000,
+  version2: 250000,
+};
+
 const initialState = {
-  collectionId: null,
-  collectionName: "",
-  version: {
-    selected: null, // 'version1' or 'version2'
-    version1: {
-      id: "version1",
-      name: "Version 1",
-      price: 245000,
-      description: "Khung tranh bên trong có 01 LEGO",
-    },
-    version2: {
-      id: "version2",
-      name: "Version 2",
-      price: 250000,
-      description: "Khung tranh bên trong có 02 LEGO",
-    },
+  // Thông tin bộ sưu tập hiện tại
+  collection: {
+    id: null,
+    name: "",
   },
+
+  // Bước hiện tại trong quy trình tùy chỉnh
+  step: "products", // products, background, user-info
+
+  // Phiên bản sản phẩm
+  version: {
+    selected: null, // 'version1' hoặc 'version2'
+    isFromCombo: false, // Flag đánh dấu version được cài từ combo
+  },
+
+  // Combo trọn bộ (bao gồm cả frame + phụ kiện)
+  fullCombo: null,
+
+  // Combo phụ kiện (chỉ bao gồm phụ kiện, không có frame)
+  accessoryCombo: null,
+
+  // Tùy chỉnh nhân vật
   characters: {
     character1: {
-      // Nhân vật 1 (Bên trái)
       topColor: null,
       bottomColor: null,
-      face: null,
       hair: null,
+      face: null,
     },
     character2: {
-      // Nhân vật 2 (Bên phải) - chỉ có khi chọn version2
       topColor: null,
       bottomColor: null,
-      face: null,
       hair: null,
+      face: null,
     },
   },
-  outfit: null, // 'vintage', 'casual', 'pastel'
-  accessories: [], // Mảng chứa ID các phụ kiện được chọn
-  pet: null, // ID của thú cưng được chọn
-  combo: [], // Mảng chứa ID các combo được chọn
+
+  // Outfit mẫu được chọn (chỉ để tham khảo)
+  outfit: null,
+
+  // Phụ kiện mà khách hàng chọn thêm (không bao gồm trong combo)
+  additionalAccessories: [],
+
+  // Thú cưng mà khách hàng chọn thêm (nếu không có trong combo)
+  additionalPet: null,
+
+  // Thông tin background
   background: {
-    template: null, // Object chứa thông tin template background
+    template: null,
     title: "",
     date: "",
-    names: "", // Tên người trong background
+    name: "",
     song: "",
-    canvaUrl: "", // Thêm trường mới để lưu URL đến file Canva
-    isCanvaDesignCreated: false, // Trạng thái đã tạo design trên Canva chưa
+    customText: "",
+    canvaLink: "",
   },
-  totalPrice: 0, // Tổng giá sản phẩm
-  currentStep: "product", // 'product', 'background'
+
+  // Tổng giá của đơn hàng
+  totalPrice: 0,
 };
 
 const customizationSlice = createSlice({
   name: "customization",
   initialState,
   reducers: {
-    // Chọn bộ sưu tập
+    // COLLECTION ACTIONS
     setCollection: (state, action) => {
-      state.collectionId = action.payload.id;
-      state.collectionName = action.payload.name;
+      state.collection = action.payload;
     },
 
-    // Chọn version
+    // NAVIGATION ACTIONS
+    setCurrentStep: (state, action) => {
+      state.step = action.payload;
+    },
+
+    // VERSION ACTIONS
     setVersion: (state, action) => {
-      state.version.selected = action.payload;
-      // Cập nhật giá ban đầu
-      if (action.payload === "version1") {
-        state.totalPrice = state.version.version1.price;
-      } else if (action.payload === "version2") {
-        state.totalPrice = state.version.version2.price;
+      // Nếu đang chọn combo trọn bộ, hủy combo đó trước
+      if (state.fullCombo) {
+        state.fullCombo = null;
       }
+
+      state.version.selected = action.payload;
+      state.version.isFromCombo = false;
     },
 
-    // Actions cho nhân vật 1
+    // CHARACTER COLOR ACTIONS
     setCharacter1TopColor: (state, action) => {
       state.characters.character1.topColor = action.payload;
     },
+
     setCharacter1BottomColor: (state, action) => {
       state.characters.character1.bottomColor = action.payload;
     },
-    setCharacter1Face: (state, action) => {
-      state.characters.character1.face = action.payload;
-      // Cập nhật giá nếu có thay đổi
-      const prevPrice = state.characters.character1.face
-        ? 0
-        : action.payload.price || 0;
-      state.totalPrice =
-        state.totalPrice - prevPrice + (action.payload.price || 0);
-    },
-    setCharacter1Hair: (state, action) => {
-      state.characters.character1.hair = action.payload;
-      // Cập nhật giá
-      const prevPrice = state.characters.character1.hair
-        ? state.characters.character1.hair.price || 0
-        : 0;
-      state.totalPrice =
-        state.totalPrice - prevPrice + (action.payload.price || 0);
-    },
 
-    // Actions cho nhân vật 2
     setCharacter2TopColor: (state, action) => {
       state.characters.character2.topColor = action.payload;
     },
+
     setCharacter2BottomColor: (state, action) => {
       state.characters.character2.bottomColor = action.payload;
     },
+
+    // CHARACTER FACE ACTIONS
+    setCharacter1Face: (state, action) => {
+      state.characters.character1.face = action.payload;
+    },
+
     setCharacter2Face: (state, action) => {
       state.characters.character2.face = action.payload;
-      // Cập nhật giá
-      const prevPrice = state.characters.character2.face
-        ? state.characters.character2.face.price || 0
-        : 0;
-      state.totalPrice =
-        state.totalPrice - prevPrice + (action.payload.price || 0);
     },
+
+    // CHARACTER HAIR ACTIONS
+    setCharacter1Hair: (state, action) => {
+      state.characters.character1.hair = action.payload;
+    },
+
     setCharacter2Hair: (state, action) => {
       state.characters.character2.hair = action.payload;
-      // Cập nhật giá
-      const prevPrice = state.characters.character2.hair
-        ? state.characters.character2.hair.price || 0
-        : 0;
-      state.totalPrice =
-        state.totalPrice - prevPrice + (action.payload.price || 0);
     },
 
-    // Actions cho outfit
+    // OUTFIT ACTIONS (tham khảo)
     setOutfit: (state, action) => {
       state.outfit = action.payload;
-      // Khi chọn outfit, có thể cập nhật màu cho cả 2 nhân vật
-      if (action.payload === "vintage") {
-        state.characters.character1.topColor = {
-          name: "Nâu",
-          colorCode: "#8B4513",
-        };
-        state.characters.character1.bottomColor = {
-          name: "Nâu đậm",
-          colorCode: "#5D4037",
-        };
-        if (state.version.selected === "version2") {
-          state.characters.character2.topColor = {
-            name: "Nâu",
-            colorCode: "#8B4513",
-          };
-          state.characters.character2.bottomColor = {
-            name: "Nâu đậm",
-            colorCode: "#5D4037",
-          };
-        }
-      } else if (action.payload === "casual") {
-        state.characters.character1.topColor = {
-          name: "Xanh dương",
-          colorCode: "#1976D2",
-        };
-        state.characters.character1.bottomColor = {
-          name: "Đen",
-          colorCode: "#212121",
-        };
-        if (state.version.selected === "version2") {
-          state.characters.character2.topColor = {
-            name: "Xanh dương",
-            colorCode: "#1976D2",
-          };
-          state.characters.character2.bottomColor = {
-            name: "Đen",
-            colorCode: "#212121",
-          };
-        }
-      } else if (action.payload === "pastel") {
-        state.characters.character1.topColor = {
-          name: "Hồng nhạt",
-          colorCode: "#FFCDD2",
-        };
-        state.characters.character1.bottomColor = {
-          name: "Xanh mint",
-          colorCode: "#B2EBF2",
-        };
-        if (state.version.selected === "version2") {
-          state.characters.character2.topColor = {
-            name: "Hồng nhạt",
-            colorCode: "#FFCDD2",
-          };
-          state.characters.character2.bottomColor = {
-            name: "Xanh mint",
-            colorCode: "#B2EBF2",
-          };
-        }
-      }
     },
 
-    // Actions cho phụ kiện
-    addAccessory: (state, action) => {
-      // Kiểm tra xem đã có phụ kiện này chưa
-      const existingIndex = state.accessories.findIndex(
+    // ADDITIONAL ACCESSORIES ACTIONS
+    addAdditionalAccessory: (state, action) => {
+      // Kiểm tra xem phụ kiện có trong danh sách thêm chưa
+      const existingIndex = state.additionalAccessories.findIndex(
         (acc) => acc.id === action.payload.id
       );
+
       if (existingIndex === -1) {
-        state.accessories.push(action.payload);
-        // Cập nhật giá
-        state.totalPrice += action.payload.price || 0;
+        // Nếu chưa có, thêm vào
+        state.additionalAccessories.push(action.payload);
       }
+
+      // Lưu ý: Không cần kiểm tra thêm phụ kiện có trong combo không
+      // vì điều này đã được xử lý ở component rồi
     },
-    removeAccessory: (state, action) => {
-      const accessoryToRemove = state.accessories.find(
-        (acc) => acc.id === action.payload
-      );
-      if (accessoryToRemove) {
-        state.totalPrice -= accessoryToRemove.price || 0;
-      }
-      state.accessories = state.accessories.filter(
+
+    removeAdditionalAccessory: (state, action) => {
+      // Xóa phụ kiện khỏi danh sách thêm
+      state.additionalAccessories = state.additionalAccessories.filter(
         (acc) => acc.id !== action.payload
       );
     },
 
-    // Actions cho thú cưng
-    setPet: (state, action) => {
-      const prevPet = state.pet;
-      state.pet = action.payload;
+    // ADDITIONAL PET ACTIONS
+    setAdditionalPet: (state, action) => {
+      // Thú cưng được chọn thêm (null nếu không chọn thú cưng thêm)
+      state.additionalPet = action.payload;
+    },
 
-      // Cập nhật giá
-      if (prevPet) {
-        state.totalPrice -= prevPet.price || 0;
+    // ACCESSORY COMBO ACTIONS
+    setAccessoryCombo: (state, action) => {
+      // Set combo phụ kiện mới
+      state.accessoryCombo = action.payload;
+
+      // Nếu có combo phụ kiện mới
+      if (action.payload && action.payload.includes) {
+        // Loại bỏ các phụ kiện đã thêm mà trùng với phụ kiện trong combo
+        if (action.payload.includes.accessories) {
+          state.additionalAccessories = state.additionalAccessories.filter(
+            (acc) => !action.payload.includes.accessories.includes(acc.id)
+          );
+        }
+
+        // Nếu thú cưng đã thêm trùng với thú cưng trong combo, reset thú cưng thêm
+        if (
+          action.payload.includes.pet &&
+          state.additionalPet &&
+          state.additionalPet.id === action.payload.includes.pet
+        ) {
+          state.additionalPet = null;
+        }
       }
-      if (action.payload) {
-        state.totalPrice += action.payload.price || 0;
+    },
+
+    removeAccessoryCombo: (state) => {
+      // Xóa combo phụ kiện
+      state.accessoryCombo = null;
+    },
+
+    // FULL COMBO ACTIONS
+    setFullCombo: (state, action) => {
+      // Set combo trọn bộ mới
+      state.fullCombo = action.payload;
+
+      // Set version từ combo
+      if (
+        action.payload &&
+        action.payload.includes &&
+        action.payload.includes.version
+      ) {
+        state.version.selected = action.payload.includes.version;
+        state.version.isFromCombo = true;
+      }
+
+      // Loại bỏ các phụ kiện đã thêm mà trùng với phụ kiện trong combo
+      if (
+        action.payload &&
+        action.payload.includes &&
+        action.payload.includes.accessories
+      ) {
+        state.additionalAccessories = state.additionalAccessories.filter(
+          (acc) => !action.payload.includes.accessories.includes(acc.id)
+        );
+      }
+
+      // Nếu thú cưng đã thêm trùng với thú cưng trong combo, reset thú cưng thêm
+      if (
+        action.payload &&
+        action.payload.includes &&
+        action.payload.includes.pet &&
+        state.additionalPet &&
+        state.additionalPet.id === action.payload.includes.pet
+      ) {
+        state.additionalPet = null;
       }
     },
 
-    // Actions cho combo
-    addCombo: (state, action) => {
-      state.combo.push(action.payload);
-      // Cập nhật giá - lưu ý combo đã có giá ưu đãi
-      state.totalPrice += action.payload.price || 0;
-    },
-    removeCombo: (state, action) => {
-      const comboToRemove = state.combo.find((c) => c.id === action.payload);
-      if (comboToRemove) {
-        state.totalPrice -= comboToRemove.price || 0;
-      }
-      state.combo = state.combo.filter((c) => c.id !== action.payload);
+    removeFullCombo: (state) => {
+      // Xóa combo trọn bộ và reset flag version
+      state.fullCombo = null;
+      state.version.isFromCombo = false;
     },
 
-    // Actions cho background
-    setBackgroundTemplate: (state, action) => {
-      state.background.template = action.payload;
-    },
-    setBackgroundTitle: (state, action) => {
-      state.background.title = action.payload;
-    },
-    setBackgroundDate: (state, action) => {
-      state.background.date = action.payload;
-    },
-    setBackgroundNames: (state, action) => {
-      state.background.names = action.payload;
-    },
-    setBackgroundSong: (state, action) => {
-      state.background.song = action.payload;
-    },
-    // Thêm action mới cho Canva URL
-    setCanvaUrl: (state, action) => {
-      state.background.canvaUrl = action.payload;
-      state.background.isCanvaDesignCreated = true;
-    },
-
-    // Điều hướng giữa các bước
-    setCurrentStep: (state, action) => {
-      state.currentStep = action.payload;
-    },
-
-    // Tính tổng giá
+    // PRICE CALCULATION
     recalculatePrice: (state) => {
       let total = 0;
 
-      // Giá của version
-      if (state.version.selected === "version1") {
-        total += state.version.version1.price;
-      } else if (state.version.selected === "version2") {
-        total += state.version.version2.price;
+      // 1. Giá cơ bản (combo trọn bộ HOẶC version)
+      if (state.fullCombo) {
+        // Nếu có combo trọn bộ, lấy giá từ combo
+        total += state.fullCombo.price;
+      } else if (state.version.selected) {
+        // Nếu không có combo trọn bộ nhưng có version, lấy giá từ version
+        total += VERSION_PRICES[state.version.selected] || 0;
       }
 
-      // Giá của tóc, mặt
-      if (state.characters.character1.hair) {
+      // 2. Giá combo phụ kiện (nếu có)
+      if (state.accessoryCombo) {
+        total += state.accessoryCombo.price || 0;
+      }
+
+      // 3. Giá phụ kiện thêm
+      if (
+        state.additionalAccessories &&
+        state.additionalAccessories.length > 0
+      ) {
+        state.additionalAccessories.forEach((acc) => {
+          total += acc.price || 0;
+        });
+      }
+
+      // 4. Giá thú cưng thêm
+      if (state.additionalPet) {
+        total += state.additionalPet.price || 0;
+      }
+
+      // 5. Giá tóc (chỉ tính nếu không có trong combo trọn bộ)
+      // - Tóc nhân vật 1
+      if (
+        state.characters.character1.hair &&
+        (!state.fullCombo || !state.fullCombo.includes?.hair)
+      ) {
         total += state.characters.character1.hair.price || 0;
       }
-      if (state.characters.character1.face) {
-        total += state.characters.character1.face.price || 0;
+
+      // - Tóc nhân vật 2
+      if (
+        state.characters.character2.hair &&
+        (!state.fullCombo || !state.fullCombo.includes?.hair)
+      ) {
+        total += state.characters.character2.hair.price || 0;
       }
 
-      if (state.version.selected === "version2") {
-        if (state.characters.character2.hair) {
-          total += state.characters.character2.hair.price || 0;
-        }
-        if (state.characters.character2.face) {
-          total += state.characters.character2.face.price || 0;
-        }
-      }
-
-      // Giá của phụ kiện
-      state.accessories.forEach((acc) => {
-        total += acc.price || 0;
-      });
-
-      // Giá của thú cưng
-      if (state.pet) {
-        total += state.pet.price || 0;
-      }
-
-      // Giá của combo (đã được tính ưu đãi)
-      state.combo.forEach((c) => {
-        total += c.price || 0;
-      });
-
+      // Cập nhật tổng giá
       state.totalPrice = total;
     },
 
-    // Reset state
+    // BACKGROUND ACTIONS
+    setBackgroundTemplate: (state, action) => {
+      state.background.template = action.payload;
+    },
+
+    setBackgroundTitle: (state, action) => {
+      state.background.title = action.payload;
+    },
+
+    setBackgroundDate: (state, action) => {
+      state.background.date = action.payload;
+    },
+
+    setBackgroundName: (state, action) => {
+      state.background.name = action.payload;
+    },
+
+    setBackgroundSong: (state, action) => {
+      state.background.song = action.payload;
+    },
+
+    setBackgroundCustomText: (state, action) => {
+      state.background.customText = action.payload;
+    },
+
+    setBackgroundCanvaLink: (state, action) => {
+      state.background.canvaLink = action.payload;
+    },
+
+    // OTHER ACTIONS
     resetCustomization: () => initialState,
+
+    // Cập nhật toàn bộ đối tượng background
+    setBackground: (state, action) => {
+      state.background = { ...state.background, ...action.payload };
+    },
+
+    // Thêm nhiều phụ kiện cùng lúc
+    addMultipleAccessories: (state, action) => {
+      // Lọc ra những phụ kiện chưa có trong danh sách thêm
+      const newAccessories = action.payload.filter(
+        (newAcc) =>
+          !state.additionalAccessories.some((acc) => acc.id === newAcc.id)
+      );
+
+      // Thêm vào danh sách
+      state.additionalAccessories = [
+        ...state.additionalAccessories,
+        ...newAccessories,
+      ];
+    },
+
+    // Cập nhật thông tin combo tổng thể (hỗ trợ phân tích data)
+    updateComboInfo: (state, action) => {
+      // Chỉ cập nhật thông tin, không ảnh hưởng đến lựa chọn
+      if (state.fullCombo && action.payload.fullComboData) {
+        const comboId = state.fullCombo.id;
+        const updatedCombo = action.payload.fullComboData.find(
+          (c) => c.id === comboId
+        );
+        if (updatedCombo) {
+          state.fullCombo = updatedCombo;
+        }
+      }
+
+      if (state.accessoryCombo && action.payload.accessoryComboData) {
+        const comboId = state.accessoryCombo.id;
+        const updatedCombo = action.payload.accessoryComboData.find(
+          (c) => c.id === comboId
+        );
+        if (updatedCombo) {
+          state.accessoryCombo = updatedCombo;
+        }
+      }
+    },
   },
 });
 
+// Export các actions
 export const {
   setCollection,
+  setCurrentStep,
   setVersion,
   setCharacter1TopColor,
   setCharacter1BottomColor,
-  setCharacter1Face,
-  setCharacter1Hair,
   setCharacter2TopColor,
   setCharacter2BottomColor,
+  setCharacter1Face,
+  setCharacter1Hair,
   setCharacter2Face,
   setCharacter2Hair,
   setOutfit,
-  addAccessory,
-  removeAccessory,
-  setPet,
-  addCombo,
-  removeCombo,
+  addAdditionalAccessory,
+  removeAdditionalAccessory,
+  setAdditionalPet,
+  setAccessoryCombo,
+  removeAccessoryCombo,
+  setFullCombo,
+  removeFullCombo,
+  recalculatePrice,
   setBackgroundTemplate,
   setBackgroundTitle,
   setBackgroundDate,
-  setBackgroundNames,
+  setBackgroundName,
   setBackgroundSong,
-  setCanvaUrl,
-  setCurrentStep,
-  recalculatePrice,
+  setBackgroundCustomText,
+  setBackgroundCanvaLink,
   resetCustomization,
+  setBackground,
+  addMultipleAccessories,
+  updateComboInfo,
 } = customizationSlice.actions;
 
+// Export reducer
 export default customizationSlice.reducer;
