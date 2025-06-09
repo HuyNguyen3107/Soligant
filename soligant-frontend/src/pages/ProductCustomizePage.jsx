@@ -1427,7 +1427,7 @@ const ProductCustomizePage = () => {
   return (
     <div className="container mx-auto py-8 px-4">
       <motion.h1
-        className="text-3xl md:text-4xl font-rafgins text-soligant-primary text-center mb-8"
+        className="text-3xl md:text-4xl font-utm-avo text-soligant-primary text-center mb-8"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}

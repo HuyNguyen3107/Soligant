@@ -36,7 +36,9 @@ const Footer = () => {
 
           {/* Links */}
           <div>
-            <h3 className="font-bold text-xl mb-4 text-white">Liên kết</h3>
+            <h3 className="font-bold text-xl mb-4 text-white font-utm-avo">
+              Liên kết
+            </h3>
             <ul className="space-y-2">
               <li>
                 <Link
@@ -67,7 +69,9 @@ const Footer = () => {
 
           {/* Liên hệ */}
           <div>
-            <h3 className="font-bold text-xl mb-4 text-white">Liên hệ</h3>
+            <h3 className="font-bold text-xl font-utm-avo mb-4 text-white">
+              Liên hệ
+            </h3>
             <ul className="space-y-2">
               <li className="flex items-center">
                 <FaPhone className="mr-2" />

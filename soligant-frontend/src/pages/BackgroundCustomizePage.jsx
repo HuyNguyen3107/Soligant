@@ -214,7 +214,7 @@ const BackgroundCustomizePage = () => {
   return (
     <div className="container mx-auto py-8 px-4">
       <motion.h1
-        className="text-3xl md:text-4xl font-rafgins text-soligant-primary text-center mb-8"
+        className="text-3xl md:text-4xl font-utm-avo text-soligant-primary text-center mb-8"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -226,19 +226,19 @@ const BackgroundCustomizePage = () => {
         {/* Preview và thông tin đơn hàng */}
         <div className="lg:col-span-1 order-2 lg:order-1">
           <div className="sticky top-24 bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-bold mb-4 font-utm-avo">
+            {/* <h2 className="text-xl font-bold mb-4 font-utm-avo">
               Xem trước Background
-            </h2>
+            </h2> */}
 
             {bg.template ? (
               <div className="mb-6">
-                <div className="aspect-video bg-gray-100 rounded-lg mb-4 overflow-hidden">
+                {/* <div className="aspect-video bg-gray-100 rounded-lg mb-4 overflow-hidden">
                   <img
                     src={bg.template.imageUrl}
                     alt={bg.template.name}
                     className="w-full h-full object-cover"
                   />
-                </div>
+                </div> */}
                 <h3 className="font-bold text-lg font-utm-avo">
                   {bg.template.name}
                 </h3>
