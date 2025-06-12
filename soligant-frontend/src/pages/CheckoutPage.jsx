@@ -546,27 +546,12 @@ const CheckoutPage = () => {
                 onChange={handleInputChange}
                 placeholder="Nhập số điện thoại"
                 required
-              />{" "}
+              />
               {errors.customerPhone && (
                 <p className="text-red-500 text-sm">{errors.customerPhone}</p>
               )}
-              <FormInput
-                label="Email"
-                id="customerEmail"
-                name="customerEmail"
-                type="email"
-                value={formData.customerEmail}
-                onChange={handleInputChange}
-                placeholder="Nhập email (tùy chọn)"
-              />
-              <FormInput
-                label="Địa chỉ"
-                id="customerAddress"
-                name="customerAddress"
-                value={formData.customerAddress}
-                onChange={handleInputChange}
-                placeholder="Nhập địa chỉ nhận hàng (tùy chọn)"
-              />
+              {/* REMOVED: Email input field */}
+              {/* REMOVED: Address input field */}
               <FormInput
                 label="Link Facebook"
                 id="customerFacebook"

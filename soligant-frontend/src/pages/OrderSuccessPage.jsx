@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
+import { useDispatch } from "react-redux"; // Add this import
 
 // Components
 import Button from "../components/ui/Button";
@@ -10,10 +11,12 @@ import Loading from "../components/ui/Loading";
 
 // Mock service
 import { getOrderFromGoogleSheets } from "../services/mockGoogleSheets";
+import { resetCustomization } from "../redux/features/customizationSlice"; // Add this import
 
 const OrderSuccessPage = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch(); // Initialize dispatch
 
   const [loading, setLoading] = useState(true);
   const [orderData, setOrderData] = useState(null);
@@ -671,7 +674,10 @@ const OrderSuccessPage = () => {
             </Button>
             <Button
               variant="outline"
-              onClick={() => navigate("/collections")}
+              onClick={() => {
+                dispatch(resetCustomization()); // Reset customization state
+                navigate("/collections");
+              }}
               className="flex-1"
             >
               Đặt thêm đơn khác

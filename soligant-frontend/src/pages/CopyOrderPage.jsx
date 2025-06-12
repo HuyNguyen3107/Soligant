@@ -73,7 +73,8 @@ const CopyOrderPage = () => {
     };
 
     loadOrderData();
-  }, [orderId]);  const handleCopyOrder = () => {
+  }, [orderId]);
+  const handleCopyOrder = () => {
     if (!orderData) return;
 
     console.log("🔄 Starting to copy order data:", orderData);
@@ -85,41 +86,57 @@ const CopyOrderPage = () => {
 
     // Copy version - handle both string and object format
     if (customization.version?.selected) {
-      if (typeof customization.version.selected === 'string') {
+      if (typeof customization.version.selected === "string") {
         // Handle legacy string format (version1, version2)
         dispatch(setVersion(customization.version.selected));
       } else if (customization.version.selected.name) {
         // Handle object format with name
         const versionName = customization.version.selected.name;
-        if (versionName.includes("Version 1") || versionName.includes("Single")) {
+        if (
+          versionName.includes("Version 1") ||
+          versionName.includes("Single")
+        ) {
           dispatch(setVersion("version1"));
-        } else if (versionName.includes("Version 2") || versionName.includes("Couple")) {
+        } else if (
+          versionName.includes("Version 2") ||
+          versionName.includes("Couple")
+        ) {
           dispatch(setVersion("version2"));
         }
       }
-    }    // Helper function to find complete object by name or id
+    } // Helper function to find complete object by name or id
     const findByName = (array, name) => {
-      return array.find(item => item.name === name || item.id === name);
+      return array.find((item) => item.name === name || item.id === name);
     };
 
     // Helper function to find color by name (case-insensitive)
     const findColorByName = (name) => {
-      return clothingColors.find(color => 
-        color.name.toLowerCase() === name.toLowerCase()
+      return clothingColors.find(
+        (color) => color.name.toLowerCase() === name.toLowerCase()
       );
-    };    // Copy characters with complete objects
+    }; // Copy characters with complete objects
     if (customization.characters?.character1) {
       const char1 = customization.characters.character1;
       console.log("🎭 Copying character1:", char1);
-      
+
       if (char1.topColor?.name) {
         const topColor = findColorByName(char1.topColor.name);
-        console.log("👕 Found topColor:", topColor, "for name:", char1.topColor.name);
+        console.log(
+          "👕 Found topColor:",
+          topColor,
+          "for name:",
+          char1.topColor.name
+        );
         if (topColor) dispatch(setCharacter1TopColor(topColor));
       }
       if (char1.bottomColor?.name) {
         const bottomColor = findColorByName(char1.bottomColor.name);
-        console.log("👖 Found bottomColor:", bottomColor, "for name:", char1.bottomColor.name);  
+        console.log(
+          "👖 Found bottomColor:",
+          bottomColor,
+          "for name:",
+          char1.bottomColor.name
+        );
         if (bottomColor) dispatch(setCharacter1BottomColor(bottomColor));
       }
       if (char1.hair?.name) {
@@ -137,7 +154,7 @@ const CopyOrderPage = () => {
     if (customization.characters?.character2) {
       const char2 = customization.characters.character2;
       console.log("🎭 Copying character2:", char2);
-      
+
       if (char2.topColor?.name) {
         const topColor = findColorByName(char2.topColor.name);
         if (topColor) dispatch(setCharacter2TopColor(topColor));
@@ -152,20 +169,33 @@ const CopyOrderPage = () => {
       }
       if (char2.face?.name) {
         const face = findByName(faceStyles, char2.face.name);
-        if (face) dispatch(setCharacter2Face(face));  
+        if (face) dispatch(setCharacter2Face(face));
       }
-    }    // Copy combos with complete objects
+    } // Copy combos with complete objects
     if (customization.fullCombo?.name) {
       const combo = findByName(fullCombo, customization.fullCombo.name);
-      console.log("🎁 Found fullCombo:", combo, "for name:", customization.fullCombo.name);
+      console.log(
+        "🎁 Found fullCombo:",
+        combo,
+        "for name:",
+        customization.fullCombo.name
+      );
       if (combo) {
         dispatch(setFullCombo(combo));
       }
     }
 
     if (customization.accessoryCombo?.name) {
-      const combo = findByName(accessoryCombo, customization.accessoryCombo.name);
-      console.log("🧳 Found accessoryCombo:", combo, "for name:", customization.accessoryCombo.name);
+      const combo = findByName(
+        accessoryCombo,
+        customization.accessoryCombo.name
+      );
+      console.log(
+        "🧳 Found accessoryCombo:",
+        combo,
+        "for name:",
+        customization.accessoryCombo.name
+      );
       if (combo) {
         dispatch(setAccessoryCombo(combo));
       }
@@ -173,15 +203,18 @@ const CopyOrderPage = () => {
 
     // Copy accessories with complete objects
     if (customization.additionalAccessories?.length > 0) {
-      console.log("🎒 Copying accessories:", customization.additionalAccessories);
+      console.log(
+        "🎒 Copying accessories:",
+        customization.additionalAccessories
+      );
       const completeAccessories = customization.additionalAccessories
-        .map(acc => {
+        .map((acc) => {
           const found = findByName(accessories, acc.name);
           console.log("🔍 Found accessory:", found, "for name:", acc.name);
           return found;
         })
         .filter(Boolean); // Remove null/undefined entries
-      
+
       console.log("✅ Complete accessories to dispatch:", completeAccessories);
       if (completeAccessories.length > 0) {
         dispatch(addMultipleAccessories(completeAccessories));
@@ -191,7 +224,12 @@ const CopyOrderPage = () => {
     // Copy pet with complete object
     if (customization.additionalPet?.name) {
       const pet = findByName(pets, customization.additionalPet.name);
-      console.log("🐾 Found pet:", pet, "for name:", customization.additionalPet.name);
+      console.log(
+        "🐾 Found pet:",
+        pet,
+        "for name:",
+        customization.additionalPet.name
+      );
       if (pet) {
         dispatch(setAdditionalPet(pet));
       }
@@ -199,10 +237,12 @@ const CopyOrderPage = () => {
 
     // Copy background
     if (customization.background?.template?.name) {
-      dispatch(setBackgroundTemplate({
-        name: customization.background.template.name,
-      }));
-      
+      dispatch(
+        setBackgroundTemplate({
+          name: customization.background.template.name,
+        })
+      );
+
       if (customization.background.title) {
         dispatch(setBackgroundTitle(customization.background.title));
       }
@@ -290,52 +330,52 @@ const CopyOrderPage = () => {
                   <div>
                     <span className="font-utm-avo font-semibold">Tên: </span>
                     <span className="font-utm-avo">
-                      {orderData?.customerName}
+                      {orderData?.customer?.customerName}
                     </span>
                   </div>
                   <div>
                     <span className="font-utm-avo font-semibold">SĐT: </span>
                     <span className="font-utm-avo">
-                      {orderData?.customerPhone}
+                      {orderData?.customer?.customerPhone}
                     </span>
                   </div>
-                  {orderData?.customerEmail && (
+                  {orderData?.customer?.customerEmail && (
                     <div>
                       <span className="font-utm-avo font-semibold">
                         Email:{" "}
                       </span>
                       <span className="font-utm-avo">
-                        {orderData.customerEmail}
+                        {orderData.customer.customerEmail}
                       </span>
                     </div>
                   )}
-                  {orderData?.customerFacebook && (
+                  {orderData?.customer?.customerFacebook?.trim() && (
                     <div>
                       <span className="font-utm-avo font-semibold">
                         Facebook:{" "}
                       </span>
                       <span className="font-utm-avo">
-                        {orderData.customerFacebook}
+                        {orderData.customer.customerFacebook}
                       </span>
                     </div>
                   )}
-                  {orderData?.customerInstagram && (
+                  {orderData?.customer?.customerInstagram && (
                     <div>
                       <span className="font-utm-avo font-semibold">
                         Instagram:{" "}
                       </span>
                       <span className="font-utm-avo">
-                        {orderData.customerInstagram}
+                        {orderData.customer.customerInstagram}
                       </span>
                     </div>
                   )}
-                  {orderData?.customerAddress && (
+                  {orderData?.customer?.customerAddress?.trim() && (
                     <div>
                       <span className="font-utm-avo font-semibold">
                         Địa chỉ:{" "}
                       </span>
                       <span className="font-utm-avo">
-                        {orderData.customerAddress}
+                        {orderData.customer.customerAddress}
                       </span>
                     </div>
                   )}

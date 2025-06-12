@@ -82,14 +82,6 @@ const OrderFinalizePage = () => {
       toast.warning("Vui lòng nhập tên người nhận");
       return;
     }
-    if (!formData.recipientPhone.trim()) {
-      toast.warning("Vui lòng nhập số điện thoại người nhận");
-      return;
-    }
-    if (!formData.recipientAddress.trim()) {
-      toast.warning("Vui lòng nhập địa chỉ giao hàng");
-      return;
-    }
 
     setSubmitting(true);
     try {
@@ -227,26 +219,7 @@ const OrderFinalizePage = () => {
                     placeholder="Nhập họ tên người nhận"
                     required
                   />
-                  <FormInput
-                    label="Số điện thoại người nhận *"
-                    name="recipientPhone"
-                    value={formData.recipientPhone}
-                    onChange={handleInputChange}
-                    placeholder="Nhập số điện thoại"
-                    required
-                  />
                 </div>
-
-                <FormInput
-                  label="Địa chỉ giao hàng *"
-                  name="recipientAddress"
-                  value={formData.recipientAddress}
-                  onChange={handleInputChange}
-                  placeholder="Nhập địa chỉ chi tiết (số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố)"
-                  required
-                  isTextarea
-                  rows={3}
-                />
 
                 {/* Delivery Options */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -41,6 +41,11 @@ let mockOrdersDatabase = [
     estimatedDelivery: "2024-01-22",
     paymentMethod: "Chuyển khoản",
     paymentStatus: "Paid",
+    shippingInfo: {
+      // Added for testing tracking button
+      trackingUrl: "https://example.com/track/SO20240115001",
+      trackingNumber: "TRACK001",
+    },
     customizationData: JSON.stringify({
       version: {
         selected: {
@@ -73,7 +78,7 @@ let mockOrdersDatabase = [
   {
     orderId: "SO20240114002",
     createdAt: "2024-01-14T16:45:00Z",
-    status: "Đang sản xuất",
+    status: "Đang sản xuất", // This status should NOT show tracking
     customerName: "Trần Thị Bình",
     customerPhone: "0987654321",
     customerFacebook: "tranthibinh.fb",
@@ -104,6 +109,7 @@ let mockOrdersDatabase = [
     estimatedDelivery: "2024-02-10",
     paymentMethod: "Chuyển khoản",
     paymentStatus: "Paid",
+    // No shippingInfo here, so tracking button won't show
     customizationData: JSON.stringify({
       version: {
         selected: {
@@ -138,7 +144,7 @@ let mockOrdersDatabase = [
   {
     orderId: "SO20240113003",
     createdAt: "2024-01-13T09:15:00Z",
-    status: "Chờ xác nhận",
+    status: "Chờ xác nhận", // This status should NOT show tracking
     customerName: "Lê Minh Cường",
     customerPhone: "0345678912",
     customerFacebook: "leminhcuong.official",
@@ -193,7 +199,7 @@ let mockOrdersDatabase = [
   {
     orderId: "SO20240112004",
     createdAt: "2024-01-12T14:20:00Z",
-    status: "Đang vận chuyển",
+    status: "Đang vận chuyển", // This status SHOULD show tracking if URL exists
     customerName: "Phạm Thị Dung",
     customerPhone: "0456789123",
     customerFacebook: "phamthidung.fb",
@@ -224,6 +230,11 @@ let mockOrdersDatabase = [
     estimatedDelivery: "2024-03-18",
     paymentMethod: "COD",
     paymentStatus: "Pending",
+    shippingInfo: {
+      // Added for testing tracking button
+      trackingUrl: "https://example.com/track/SO20240112004",
+      trackingNumber: "TRACK004",
+    },
     customizationData: JSON.stringify({
       version: { selected: { name: "Version 1", price: 245000 } },
       accessoryCombo: { name: "Combo Basic", price: 35000 },
@@ -250,7 +261,7 @@ let mockOrdersDatabase = [
   {
     orderId: "SO20240111005",
     createdAt: "2024-01-11T11:30:00Z",
-    status: "Đã giao",
+    status: "Đã giao", // This status should NOT show tracking based on current logic
     customerName: "Hoàng Văn Ethan",
     customerPhone: "0567891234",
     customerFacebook: "hoangvanethan.gamer",
@@ -281,6 +292,10 @@ let mockOrdersDatabase = [
     estimatedDelivery: "2024-01-18",
     paymentMethod: "Chuyển khoản",
     paymentStatus: "Paid",
+    shippingInfo: {
+      trackingUrl: "https://example.com/track/SO20240111005", // Has URL
+      trackingNumber: "TRACK005",
+    },
     customizationData: JSON.stringify({
       version: { selected: { name: "Version 2", price: 250000 } },
       accessoryCombo: { name: "Combo Gaming", price: 75000 },
@@ -304,6 +319,66 @@ let mockOrdersDatabase = [
     char2_bottomColor: "Đen",
     char2_hair: "Tóc dài màu tím",
     char2_face: "Mặt bí ẩn",
+  },
+  // New order for testing "Chờ demo" status
+  {
+    orderId: "SO20250612006",
+    createdAt: "2025-06-12T08:00:00Z",
+    status: "Chờ demo", // <--- Status for testing
+    customerName: "Tester Chờ Demo",
+    customerPhone: "0900000001",
+    customerFacebook: "tester.chodemo",
+    customerInstagram: "tester_chodemo_ig",
+    customerEmail: "chodemo@test.com",
+    customerAddress: "1 Test Street, Test City",
+    isUrgent: false,
+    version: "Version 1",
+    versionPrice: 245000,
+    totalPrice: 245000,
+    customizationNotes: "Đơn hàng test trạng thái Chờ demo.",
+    paymentMethod: "Chưa chọn",
+    paymentStatus: "Pending",
+    shippingInfo: {
+      // Has tracking URL, but status should prevent button
+      trackingUrl: "https://example.com/track/SO20250612006",
+      trackingNumber: "TRACK006",
+    },
+    customizationData: JSON.stringify({
+      version: { selected: "version1" },
+      characters: { character1: {}, character2: {} },
+    }),
+    char1_topColor: "Đỏ",
+    char1_bottomColor: "Đen",
+    char1_hair: "Tóc tém",
+    char1_face: "Mặt vui",
+  },
+  // New order for testing "Đang xử lý" with NO tracking URL
+  {
+    orderId: "SO20250612007",
+    createdAt: "2025-06-12T09:00:00Z",
+    status: "Đang xử lý", // <--- Status for testing (should show if URL existed)
+    customerName: "Tester Xử Lý NoURL",
+    customerPhone: "0900000002",
+    isUrgent: true,
+    version: "Version 2",
+    versionPrice: 250000,
+    totalPrice: 250000,
+    customizationNotes:
+      "Đơn hàng test trạng thái Đang xử lý, không có URL theo dõi.",
+    paymentMethod: "Chuyển khoản",
+    paymentStatus: "Paid",
+    shippingInfo: {
+      // NO trackingUrl
+      trackingNumber: "TRACK007_NO_URL",
+    },
+    customizationData: JSON.stringify({
+      version: { selected: "version2" },
+      characters: { character1: {}, character2: {} },
+    }),
+    char1_topColor: "Vàng",
+    char1_bottomColor: "Xanh",
+    char1_hair: "Tóc dài",
+    char1_face: "Mặt ngầu",
   },
 ];
 

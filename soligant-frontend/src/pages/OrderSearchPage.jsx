@@ -3,6 +3,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
+import { FaTruck } from "react-icons/fa";
 import Button from "../components/ui/Button";
 import FormInput from "../components/ui/FormInput";
 import Loading from "../components/ui/Loading";
@@ -59,6 +60,10 @@ const OrderSearchPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleTrackOrder = (trackingUrl) => {
+    window.open(trackingUrl, "_blank");
   };
 
   const formatStatus = (status) => {
@@ -176,11 +181,6 @@ const OrderSearchPage = () => {
                             >
                               Xem chi tiết
                             </Button>
-                            <Link to={`/order-tracking/${order.orderId}`}>
-                              <Button variant="secondary" size="sm">
-                                Theo dõi đơn hàng
-                              </Button>
-                            </Link>
                             {(order.status === "Chờ demo" ||
                               order.status === "Pending") && (
                               <Link to={`/finalize-order/${order.orderId}`}>
@@ -195,6 +195,35 @@ const OrderSearchPage = () => {
                               </Button>
                             </Link>
                           </div>
+                        </div>
+                        <div className="mt-2">
+                          {order.shippingInfo &&
+                            order.shippingInfo.trackingNumber && (
+                              <p className="text-sm text-gray-600">
+                                Mã vận đơn: {order.shippingInfo.trackingNumber}
+                              </p>
+                            )}
+                        </div>
+                        <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-start space-y-2 sm:space-y-0 sm:space-x-2">
+                          {/* Conditional rendering for "Theo dõi đơn hàng" button */}
+                          {(order.status === "Đang xử lý" ||
+                            order.status === "Đang vận chuyển" ||
+                            order.status === "Hoàn thành") &&
+                            order.shippingInfo?.trackingUrl && (
+                              <Button
+                                variant="outline"
+                                size="small"
+                                onClick={() =>
+                                  handleTrackOrder(
+                                    order.shippingInfo.trackingUrl
+                                  )
+                                }
+                                className="w-full sm:w-auto"
+                              >
+                                <FaTruck className="mr-2" />
+                                Theo dõi đơn hàng
+                              </Button>
+                            )}
                         </div>
                       </div>
                     );
