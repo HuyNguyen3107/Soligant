@@ -53,17 +53,16 @@ const ColorPicker = ({ colors, selectedColor, onSelectColor, label }) => {
 
       {/* Dropdown color palette */}
       {isOpen && (
-        <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded p-2 border border-gray-200">
-          <div className="grid grid-cols-5 gap-2">
-            {colors.map((color, index) => (
+        <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded p-2 border border-gray-200">          <div className="grid grid-cols-5 gap-2">
+            {colors.map((color) => (
               <div
-                key={index}
+                key={color.id}
                 className={`flex flex-col items-center cursor-pointer p-1 rounded hover:bg-gray-100`}
                 onClick={() => handleColorSelect(color)}
               >
                 <div
                   className={`w-8 h-8 rounded-full border hover:scale-110 transition-transform ${
-                    selectedColor && color.colorCode === selectedColor.colorCode
+                    selectedColor && color.id === selectedColor.id
                       ? "border-2 border-black"
                       : "border-gray-300"
                   }`}

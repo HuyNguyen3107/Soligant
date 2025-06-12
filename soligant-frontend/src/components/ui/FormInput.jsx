@@ -6,6 +6,7 @@ const FormInput = ({
   type = "text",
   value,
   onChange,
+  onKeyDown,
   placeholder,
   maxLength,
   required = false,
@@ -17,13 +18,14 @@ const FormInput = ({
         className="block text-sm font-medium mb-2 font-utm-avo"
       >
         {label} {required && <span className="text-red-500">*</span>}
-      </label>
+      </label>{" "}
       <input
         type={type}
         id={id}
         name={name || id}
         value={value}
         onChange={onChange}
+        onKeyDown={onKeyDown}
         placeholder={placeholder}
         maxLength={maxLength}
         required={required}

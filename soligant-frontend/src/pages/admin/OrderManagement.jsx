@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import Sidebar from "../../components/admin/Sidebar";
+import OrderDetailModal from "../../components/admin/OrderDetailModal";
 
 // Mock data for orders
 const mockOrdersData = [
@@ -154,11 +155,12 @@ const OrderManagement = () => {
     setSearchParams(newParams);
     setSearching(false); // Kết thúc trạng thái tìm kiếm
   }, 500); // Delay 500ms
-
   const [searchParams, setSearchParams] = useSearchParams();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [filters, setFilters] = useState({
     status: searchParams.get("status") || "all",
     search: searchParams.get("search") || "",
@@ -311,13 +313,30 @@ const OrderManagement = () => {
     e.preventDefault();
     // The filter will be applied by the useEffect hook
   };
-
   const updateOrderStatus = (orderId, newStatus) => {
     setOrders((prevOrders) =>
       prevOrders.map((order) =>
         order.id === orderId ? { ...order, status: newStatus } : order
       )
     );
+  };
+
+  const handleOrderDetail = (order) => {
+    setSelectedOrder(order);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedOrder(null);
+  };
+
+  const handleModalStatusUpdate = (orderId, newStatus) => {
+    updateOrderStatus(orderId, newStatus);
+    // Update selected order if it's the same order
+    if (selectedOrder && selectedOrder.id === orderId) {
+      setSelectedOrder({ ...selectedOrder, status: newStatus });
+    }
   };
 
   return (
@@ -711,15 +730,15 @@ const OrderManagement = () => {
                             >
                               {statusInfo.text}
                             </span>
-                          </td>
+                          </td>{" "}
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div className="flex items-center space-x-3">
-                              <Link
-                                to={`/admin/orders/${order.id}`}
+                              <button
+                                onClick={() => handleOrderDetail(order)}
                                 className="text-blue-600 hover:text-blue-900"
                               >
                                 Chi tiết
-                              </Link>
+                              </button>
                               <div className="relative inline-block text-left">
                                 <select
                                   className="cursor-pointer text-sm text-gray-500 bg-white border border-gray-300 rounded px-2 py-1"
@@ -768,9 +787,17 @@ const OrderManagement = () => {
                 </p>
               </div>
             )}
-          </motion.div>
+          </motion.div>{" "}
         </main>
       </div>
+
+      {/* Order Detail Modal */}
+      <OrderDetailModal
+        order={selectedOrder}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onStatusUpdate={handleModalStatusUpdate}
+      />
     </div>
   );
 };

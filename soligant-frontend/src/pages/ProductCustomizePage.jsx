@@ -580,8 +580,7 @@ const ProductCustomizePage = () => {
             <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
               <h3 className="text-xl font-bold mb-4 font-utm-avo">
                 Màu quần áo
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              </h3>              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <ColorPicker
                   colors={clothingColors}
                   selectedColor={customization.characters.character1.topColor}

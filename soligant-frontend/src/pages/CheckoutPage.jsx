@@ -17,13 +17,14 @@ const CheckoutPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const customization = useSelector((state) => state.customization);
-
   // Form state
   const [formData, setFormData] = useState({
     customerName: "",
     customerPhone: "",
+    customerEmail: "",
     customerFacebook: "",
     customerInstagram: "",
+    customerAddress: "",
     isUrgent: false,
   });
 
@@ -440,7 +441,9 @@ const CheckoutPage = () => {
                           className="text-xs bg-white px-2 py-1 rounded"
                         >
                           {acc.name} (+
-                          {new Intl.NumberFormat("vi-VN").format(acc.price)}{" "}
+                          {new Intl.NumberFormat("vi-VN").format(
+                            acc.price
+                          )}{" "}
                           VNĐ)
                         </span>
                       ))}
@@ -534,7 +537,6 @@ const CheckoutPage = () => {
               {errors.customerName && (
                 <p className="text-red-500 text-sm">{errors.customerName}</p>
               )}
-
               <FormInput
                 label="Số điện thoại"
                 id="customerPhone"
@@ -544,11 +546,27 @@ const CheckoutPage = () => {
                 onChange={handleInputChange}
                 placeholder="Nhập số điện thoại"
                 required
-              />
+              />{" "}
               {errors.customerPhone && (
                 <p className="text-red-500 text-sm">{errors.customerPhone}</p>
               )}
-
+              <FormInput
+                label="Email"
+                id="customerEmail"
+                name="customerEmail"
+                type="email"
+                value={formData.customerEmail}
+                onChange={handleInputChange}
+                placeholder="Nhập email (tùy chọn)"
+              />
+              <FormInput
+                label="Địa chỉ"
+                id="customerAddress"
+                name="customerAddress"
+                value={formData.customerAddress}
+                onChange={handleInputChange}
+                placeholder="Nhập địa chỉ nhận hàng (tùy chọn)"
+              />
               <FormInput
                 label="Link Facebook"
                 id="customerFacebook"
@@ -557,7 +575,6 @@ const CheckoutPage = () => {
                 onChange={handleInputChange}
                 placeholder="https://facebook.com/yourprofile (tùy chọn)"
               />
-
               <FormInput
                 label="Link Instagram"
                 id="customerInstagram"
@@ -566,7 +583,6 @@ const CheckoutPage = () => {
                 onChange={handleInputChange}
                 placeholder="https://instagram.com/yourprofile (tùy chọn)"
               />
-
               {/* Urgent checkbox */}
               <div className="flex items-center space-x-2">
                 <input
@@ -581,7 +597,6 @@ const CheckoutPage = () => {
                   Đơn hàng gấp (cần trong vòng 3-5 ngày)
                 </label>
               </div>
-
               {/* Info note */}
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-6">
                 <h4 className="font-bold text-yellow-800 mb-2 font-utm-avo">
@@ -596,7 +611,6 @@ const CheckoutPage = () => {
                   <li>• Thời gian làm đơn: 3-5 ngày kể từ khi thanh toán</li>
                 </ul>
               </div>
-
               {/* Submit button */}
               <div className="flex flex-col space-y-4 mt-8">
                 <Button

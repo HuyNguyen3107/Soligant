@@ -2,17 +2,17 @@
 
 // Màu sắc quần áo
 export const clothingColors = [
-  { name: "Đen", colorCode: "#000000" },
-  { name: "Xám đậm", colorCode: "#555555" },
-  { name: "Xám nhạt", colorCode: "#888888" },
-  { name: "Xám trắng", colorCode: "#DDDDDD" },
-  { name: "Trắng", colorCode: "#FFFFFF" },
-  { name: "Nâu", colorCode: "#8B4513" },
-  { name: "Xanh rêu", colorCode: "#556B2F" },
-  { name: "Be", colorCode: "#F5F5DC" },
-  { name: "Hồng", colorCode: "#FFC0CB" },
-  { name: "Tím", colorCode: "#9370DB" },
-  { name: "Xanh dương", colorCode: "#1E90FF" },
+  { id: "color_black", name: "Đen", colorCode: "#000000" },
+  { id: "color_dark_gray", name: "Xám đậm", colorCode: "#555555" },
+  { id: "color_light_gray", name: "Xám nhạt", colorCode: "#888888" },
+  { id: "color_light_white_gray", name: "Xám trắng", colorCode: "#DDDDDD" },
+  { id: "color_white", name: "Trắng", colorCode: "#FFFFFF" },
+  { id: "color_brown", name: "Nâu", colorCode: "#8B4513" },
+  { id: "color_olive", name: "Xanh rêu", colorCode: "#556B2F" },
+  { id: "color_beige", name: "Be", colorCode: "#F5F5DC" },
+  { id: "color_pink", name: "Hồng", colorCode: "#FFC0CB" },
+  { id: "color_purple", name: "Tím", colorCode: "#9370DB" },
+  { id: "color_blue", name: "Xanh dương", colorCode: "#1E90FF" },
 ];
 
 // Outfit mẫu

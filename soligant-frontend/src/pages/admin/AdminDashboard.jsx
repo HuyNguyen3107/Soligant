@@ -1,7 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import {
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 import Sidebar from "../../components/admin/Sidebar";
+import NotificationSystem from "../../components/admin/NotificationSystem";
 
 // Mock data for dashboard
 const mockOrdersData = [
@@ -42,6 +60,45 @@ const mockOrdersData = [
   },
 ];
 
+// Mock sales data for charts
+const salesData = [
+  { day: "T2", sales: 4000000, orders: 12 },
+  { day: "T3", sales: 3000000, orders: 8 },
+  { day: "T4", sales: 5000000, orders: 15 },
+  { day: "T5", sales: 4500000, orders: 13 },
+  { day: "T6", sales: 6000000, orders: 18 },
+  { day: "T7", sales: 5500000, orders: 16 },
+  { day: "CN", sales: 3500000, orders: 10 },
+];
+
+// Mock order status distribution
+const orderStatusData = [
+  { name: "Chờ xác nhận", value: 15, color: "#FEF3C7" },
+  { name: "Đã xác nhận", value: 25, color: "#DBEAFE" },
+  { name: "Đang xử lý", value: 30, color: "#E0E7FF" },
+  { name: "Đang giao", value: 20, color: "#FED7AA" },
+  { name: "Hoàn thành", value: 10, color: "#D1FAE5" },
+];
+
+// Mock product performance data
+const productPerformanceData = [
+  { name: "Version 1", sold: 45, revenue: 11025000 },
+  { name: "Version 2", sold: 38, revenue: 9500000 },
+  { name: "Background A", sold: 25, revenue: 3750000 },
+  { name: "Phụ kiện Mũ", sold: 15, revenue: 450000 },
+  { name: "Combo Special", sold: 12, revenue: 6000000 },
+];
+
+// Mock monthly revenue data
+const monthlyRevenueData = [
+  { month: "T1", revenue: 45000000, target: 50000000 },
+  { month: "T2", revenue: 52000000, target: 55000000 },
+  { month: "T3", revenue: 48000000, target: 50000000 },
+  { month: "T4", revenue: 61000000, target: 60000000 },
+  { month: "T5", revenue: 55000000, target: 65000000 },
+  { month: "T6", revenue: 68000000, target: 70000000 },
+];
+
 // Format status to Vietnamese
 const formatStatus = (status) => {
   const statusMap = {
@@ -69,7 +126,6 @@ const AdminDashboard = () => {
       window.location.href = "/admin/login";
     }
   }, []);
-
   // State for dashboard data
   const [dashboardData, setDashboardData] = useState({
     totalOrders: 0,
@@ -79,6 +135,10 @@ const AdminDashboard = () => {
     recentOrders: [],
   });
 
+  // State for real-time updates
+  const [isLive, setIsLive] = useState(true);
+  const [lastUpdate, setLastUpdate] = useState(new Date());
+  const [notifications, setNotifications] = useState([]);
   // Load dashboard data
   useEffect(() => {
     // In a real app, this would be an API call
@@ -116,19 +176,127 @@ const AdminDashboard = () => {
     loadDashboardData();
   }, []);
 
+  // Real-time updates simulation
+  useEffect(() => {
+    if (!isLive) return;
+
+    const interval = setInterval(() => {
+      // Simulate real-time order updates
+      const randomAction = Math.random();
+      const now = new Date();
+
+      if (randomAction < 0.3) {
+        // New order notification
+        const newNotification = {
+          id: Date.now(),
+          type: "new_order",
+          message: `Đơn hàng mới từ ${getRandomCustomerName()}`,
+          time: now,
+        };
+        setNotifications((prev) => [newNotification, ...prev.slice(0, 4)]);
+
+        // Update stats
+        setDashboardData((prev) => ({
+          ...prev,
+          newOrders: prev.newOrders + 1,
+          totalOrders: prev.totalOrders + 1,
+        }));
+      } else if (randomAction < 0.6) {
+        // Status update notification
+        const statusNotification = {
+          id: Date.now(),
+          type: "status_update",
+          message: "Đơn hàng SO-202506 đã chuyển sang 'Đang giao'",
+          time: now,
+        };
+        setNotifications((prev) => [statusNotification, ...prev.slice(0, 4)]);
+      }
+
+      setLastUpdate(now);
+    }, 15000); // Update every 15 seconds
+
+    return () => clearInterval(interval);
+  }, [isLive]);
+
+  // Helper function for random customer names
+  const getRandomCustomerName = () => {
+    const names = [
+      "Nguyễn Văn An",
+      "Trần Thị Bình",
+      "Lê Hoàng Cường",
+      "Phạm Thị Dung",
+      "Võ Văn Em",
+    ];
+    return names[Math.floor(Math.random() * names.length)];
+  };
+
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar />
 
       <div className="flex-1 overflow-y-auto">
+        {" "}
         <header className="bg-white shadow-sm">
-          <div className="max-w-7xl mx-auto py-4 px-6">
-            <h1 className="text-2xl font-bold text-gray-900 font-utm-avo">
-              Dashboard
-            </h1>
-          </div>
-        </header>
+          <div className="max-w-7xl mx-auto py-4 px-6 flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 font-utm-avo">
+                Dashboard
+              </h1>
+              <div className="flex items-center mt-1 text-sm text-gray-500">
+                <div className="flex items-center mr-4">
+                  <div
+                    className={`w-2 h-2 rounded-full mr-2 ${
+                      isLive ? "bg-green-500 animate-pulse" : "bg-gray-400"
+                    }`}
+                  ></div>
+                  <span>
+                    {isLive ? "Cập nhật thời gian thực" : "Tạm dừng cập nhật"}
+                  </span>
+                </div>
+                <span>
+                  Cập nhật lần cuối: {lastUpdate.toLocaleTimeString("vi-VN")}
+                </span>
+              </div>
+            </div>
 
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => setIsLive(!isLive)}
+                className={`px-3 py-1 rounded text-sm font-medium ${
+                  isLive
+                    ? "bg-green-100 text-green-800 hover:bg-green-200"
+                    : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                }`}
+              >
+                {isLive ? "Tạm dừng" : "Bật"} cập nhật
+              </button>
+
+              {/* Notifications Dropdown */}
+              <div className="relative">
+                <button className="p-2 text-gray-600 hover:text-gray-900 relative">
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                    />
+                  </svg>
+                  {notifications.length > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      {notifications.length}
+                    </span>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>{" "}
         <main className="max-w-7xl mx-auto py-6 px-6">
           {/* Dashboard Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -320,105 +488,365 @@ const AdminDashboard = () => {
               </div>
             </motion.div>
           </div>
-
-          {/* Recent Orders */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.4 }}
-            className="bg-white rounded-lg shadow overflow-hidden"
-          >
-            <div className="px-6 py-4 border-b border-gray-200">
-              <div className="flex justify-between items-center">
+          {/* Charts Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            {/* Weekly Sales Chart */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className="bg-white rounded-lg shadow p-6"
+            >
+              <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium text-gray-900">
-                  Đơn hàng gần đây
+                  Doanh thu 7 ngày qua
                 </h3>
-                <Link
-                  to="/admin/orders"
-                  className="text-sm text-blue-500 hover:underline"
-                >
-                  Xem tất cả đơn hàng
-                </Link>
+                <div className="flex items-center text-sm text-gray-500">
+                  <span className="w-3 h-3 bg-blue-500 rounded mr-2"></span>
+                  Doanh thu
+                </div>
               </div>
-            </div>
-            <div className="bg-white overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead>
-                  <tr>
-                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      ID
-                    </th>
-                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Khách hàng
-                    </th>
-                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Ngày đặt
-                    </th>
-                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Giá trị
-                    </th>
-                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Trạng thái
-                    </th>
-                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Hành động
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {dashboardData.recentOrders.map((order) => {
-                    const statusInfo = formatStatus(order.status);
-                    return (
-                      <tr key={order.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {order.id}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {order.customerName}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(order.date).toLocaleDateString("vi-VN")}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Intl.NumberFormat("vi-VN").format(order.total)}{" "}
-                          VNĐ
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusInfo.color}`}
-                          >
-                            {statusInfo.text}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <Link
-                            to={`/admin/orders/${order.id}`}
-                            className="text-blue-600 hover:text-blue-900 mr-3"
-                          >
-                            Chi tiết
-                          </Link>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </motion.div>
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={salesData}>
+                  <defs>
+                    <linearGradient
+                      id="colorRevenue"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8} />
+                      <stop
+                        offset="95%"
+                        stopColor="#3B82F6"
+                        stopOpacity={0.1}
+                      />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="day" />
+                  <YAxis
+                    tickFormatter={(value) =>
+                      `${(value / 1000000).toFixed(1)}M`
+                    }
+                  />
+                  <Tooltip
+                    formatter={(value) => [
+                      `${new Intl.NumberFormat("vi-VN").format(value)} VNĐ`,
+                      "Doanh thu",
+                    ]}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="sales"
+                    stroke="#3B82F6"
+                    fillOpacity={1}
+                    fill="url(#colorRevenue)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </motion.div>
 
+            {/* Order Status Distribution */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+              className="bg-white rounded-lg shadow p-6"
+            >
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                Phân bố trạng thái đơn hàng
+              </h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={orderStatusData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={120}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {orderStatusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </motion.div>
+          </div>
+          {/* Additional Charts Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            {/* Product Performance */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.3 }}
+              className="bg-white rounded-lg shadow p-6"
+            >
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                Hiệu suất sản phẩm
+              </h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={productPerformanceData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="name"
+                    angle={-45}
+                    textAnchor="end"
+                    height={80}
+                  />
+                  <YAxis />
+                  <Tooltip
+                    formatter={(value, name) => [
+                      name === "sold"
+                        ? `${value} sản phẩm`
+                        : `${new Intl.NumberFormat("vi-VN").format(value)} VNĐ`,
+                      name === "sold" ? "Đã bán" : "Doanh thu",
+                    ]}
+                  />
+                  <Bar dataKey="sold" fill="#10B981" name="sold" />
+                </BarChart>
+              </ResponsiveContainer>
+            </motion.div>
+
+            {/* Monthly Revenue vs Target */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.4 }}
+              className="bg-white rounded-lg shadow p-6"
+            >
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                Doanh thu vs Mục tiêu (6 tháng)
+              </h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={monthlyRevenueData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis
+                    tickFormatter={(value) =>
+                      `${(value / 1000000).toFixed(0)}M`
+                    }
+                  />
+                  <Tooltip
+                    formatter={(value) => [
+                      `${new Intl.NumberFormat("vi-VN").format(value)} VNĐ`,
+                    ]}
+                  />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#3B82F6"
+                    strokeWidth={3}
+                    name="Doanh thu thực tế"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="target"
+                    stroke="#EF4444"
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                    name="Mục tiêu"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </motion.div>
+          </div>{" "}
+          {/* Recent Orders and Notifications */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            {/* Recent Orders */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.5 }}
+              className="lg:col-span-2 bg-white rounded-lg shadow overflow-hidden"
+            >
+              <div className="px-6 py-4 border-b border-gray-200">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-medium text-gray-900">
+                    Đơn hàng gần đây
+                  </h3>
+                  <Link
+                    to="/admin/orders"
+                    className="text-sm text-blue-500 hover:underline"
+                  >
+                    Xem tất cả đơn hàng
+                  </Link>
+                </div>
+              </div>
+              <div className="bg-white overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead>
+                    <tr>
+                      <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        ID
+                      </th>
+                      <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Khách hàng
+                      </th>
+                      <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Ngày đặt
+                      </th>
+                      <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Giá trị
+                      </th>
+                      <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Trạng thái
+                      </th>
+                      <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Hành động
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {dashboardData.recentOrders.map((order) => {
+                      const statusInfo = formatStatus(order.status);
+                      return (
+                        <tr key={order.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {order.id}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {order.customerName}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {new Date(order.date).toLocaleDateString("vi-VN")}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {new Intl.NumberFormat("vi-VN").format(order.total)}{" "}
+                            VNĐ
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span
+                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusInfo.color}`}
+                            >
+                              {statusInfo.text}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <Link
+                              to={`/admin/orders/${order.id}`}
+                              className="text-blue-600 hover:text-blue-900 mr-3"
+                            >
+                              Chi tiết
+                            </Link>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </motion.div>
+
+            {/* Real-time Notifications */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.6 }}
+              className="bg-white rounded-lg shadow overflow-hidden"
+            >
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-medium text-gray-900">
+                  Thông báo thời gian thực
+                </h3>
+              </div>
+              <div className="p-4 space-y-4 max-h-96 overflow-y-auto">
+                {notifications.length > 0 ? (
+                  notifications.map((notification) => (
+                    <motion.div
+                      key={notification.id}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg"
+                    >
+                      <div
+                        className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                          notification.type === "new_order"
+                            ? "bg-blue-100 text-blue-600"
+                            : "bg-green-100 text-green-600"
+                        }`}
+                      >
+                        {notification.type === "new_order" ? (
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                            />
+                          </svg>
+                        ) : (
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900">
+                          {notification.message}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {notification.time.toLocaleTimeString("vi-VN")}
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))
+                ) : (
+                  <div className="text-center text-gray-500 py-8">
+                    <svg
+                      className="mx-auto h-12 w-12 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                      />
+                    </svg>
+                    <p className="mt-2 text-sm">Chưa có thông báo mới</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
           {/* Quick Actions */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.5 }}
-            className="mt-6 bg-white rounded-lg shadow p-6"
+            transition={{ duration: 0.4, delay: 0.7 }}
+            className="bg-white rounded-lg shadow p-6"
           >
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               Thao tác nhanh
             </h3>{" "}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Link
-                to="/admin/products/create"
+                to="/admin/products/new"
                 className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-soligant-primary hover:text-white transition duration-150"
               >
                 <svg
@@ -436,6 +864,48 @@ const AdminDashboard = () => {
                   />
                 </svg>
                 Thêm sản phẩm mới
+              </Link>
+
+              <Link
+                to="/admin/orders"
+                className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-soligant-primary hover:text-white transition duration-150"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                  />
+                </svg>
+                Quản lý đơn hàng
+              </Link>
+
+              <Link
+                to="/admin/inventory"
+                className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-soligant-primary hover:text-white transition duration-150"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                  />
+                </svg>
+                Quản lý kho hàng
               </Link>
 
               <Link
@@ -458,10 +928,13 @@ const AdminDashboard = () => {
                 </svg>
                 Xem báo cáo
               </Link>
-            </div>
+            </div>{" "}
           </motion.div>
         </main>
       </div>
+
+      {/* Global Notification System */}
+      <NotificationSystem />
     </div>
   );
 };

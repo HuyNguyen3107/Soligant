@@ -32,12 +32,12 @@ const Header = () => {
             className="hover:text-soligant-secondary transition-colors"
           >
             Bộ sưu tập
-          </Link>
+          </Link>{" "}
           <Link
-            to="/order/track"
+            to="/order-search"
             className="hover:text-soligant-secondary transition-colors"
           >
-            Theo dõi đơn hàng
+            Tìm đơn hàng
           </Link>
           <Link
             to="/admin/login"
@@ -73,13 +73,13 @@ const Header = () => {
               onClick={() => setMobileMenuOpen(false)}
             >
               Bộ sưu tập
-            </Link>
+            </Link>{" "}
             <Link
-              to="/order/track"
+              to="/order-search"
               className="hover:text-soligant-secondary transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Theo dõi đơn hàng
+              Tìm đơn hàng
             </Link>
             <Link
               to="/admin/login"
