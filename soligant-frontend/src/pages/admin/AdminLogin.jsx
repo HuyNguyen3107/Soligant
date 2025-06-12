@@ -1,0 +1,159 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { showSuccess, showError } from "../../utils/toast";
+import { motion } from "framer-motion";
+
+const AdminLogin = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      // TODO: Thay thế bằng API thực khi có backend
+      // Mock login process
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Kiểm tra thông tin đăng nhập (tạm thời hardcode)
+      if (
+        formData.username === "admin" &&
+        formData.password === "Soligant@2023"
+      ) {
+        // Lưu thông tin đăng nhập vào localStorage
+        localStorage.setItem(
+          "adminAuth",
+          JSON.stringify({
+            isLoggedIn: true,
+            token: "mock-jwt-token",
+            username: formData.username,
+            role: "admin",
+          })
+        );
+        showSuccess("Đăng nhập thành công!");
+        navigate("/admin/dashboard");
+      } else {
+        showError("Thông tin đăng nhập không chính xác!");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      showError("Có lỗi xảy ra khi đăng nhập!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 flex justify-center items-center">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md"
+      >
+        {" "}
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-soligant-primary font-rafgins">
+            SOLIGANT
+          </h2>
+          <p className="text-gray-600 mt-2 font-utm-avo">Quản trị hệ thống</p>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="username"
+            >
+              Tên đăng nhập
+            </label>
+            <input
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="username"
+              type="text"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              placeholder="Nhập tên đăng nhập"
+              required
+            />
+          </div>
+
+          <div className="mb-6">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="password"
+            >
+              Mật khẩu
+            </label>
+            <input
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="password"
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Nhập mật khẩu"
+              required
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <button
+              className="w-full bg-soligant-primary hover:bg-soligant-primary-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Đang xử lý...
+                </span>
+              ) : (
+                "Đăng nhập"
+              )}
+            </button>
+          </div>
+        </form>
+        <div className="text-center mt-6 text-sm">
+          <a href="/" className="text-blue-500 hover:text-blue-700">
+            ← Quay lại trang chủ
+          </a>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+export default AdminLogin;

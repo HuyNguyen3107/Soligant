@@ -2,6 +2,7 @@
 const FormInput = ({
   label,
   id,
+  name,
   type = "text",
   value,
   onChange,
@@ -20,10 +21,12 @@ const FormInput = ({
       <input
         type={type}
         id={id}
+        name={name || id}
         value={value}
         onChange={onChange}
         placeholder={placeholder}
         maxLength={maxLength}
+        required={required}
         className="w-full px-3 py-2 border border-gray-300 rounded-md 
                    focus:outline-none focus:ring-2 focus:ring-soligant-primary 
                    focus:border-soligant-primary font-utm-avo"
