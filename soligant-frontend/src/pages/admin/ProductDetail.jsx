@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import Sidebar from "../../components/admin/Sidebar";
 
 // Mock product data - should be fetched from API
 const mockProductsData = [
@@ -279,25 +278,19 @@ const ProductDetail = () => {
 
   if (loading) {
     return (
-      <div className="flex h-screen bg-gray-50">
-        <Sidebar />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-500 border-t-transparent"></div>
-            <p className="mt-2 text-gray-500">Đang tải thông tin sản phẩm...</p>
-          </div>
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-500 border-t-transparent"></div>
+          <p className="mt-2 text-gray-500">Đang tải thông tin sản phẩm...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <Sidebar />
-
+    <>
       {/* Main content */}
-      <div className="flex-1 overflow-auto">
+      <div className="overflow-auto">
         <div className="container mx-auto py-8 px-4 max-w-5xl">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center">
@@ -891,7 +884,7 @@ const ProductDetail = () => {
           )}
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import Sidebar from "../../components/admin/Sidebar";
+// import Sidebar from "../../components/admin/Sidebar";
 import OrderDetailModal from "../../components/admin/OrderDetailModal";
 
 // Mock data for orders
@@ -340,10 +340,8 @@ const OrderManagement = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar />
-
-      <div className="flex-1 overflow-y-auto">
+    <>
+      <div className="overflow-y-auto">
         <header className="bg-white shadow-sm">
           <div className="max-w-7xl mx-auto py-4 px-6">
             <h1 className="text-2xl font-bold text-gray-900 font-utm-avo">
@@ -798,7 +796,7 @@ const OrderManagement = () => {
         onClose={handleCloseModal}
         onStatusUpdate={handleModalStatusUpdate}
       />
-    </div>
+    </>
   );
 };
 

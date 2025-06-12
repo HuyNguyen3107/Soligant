@@ -18,7 +18,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import Sidebar from "../../components/admin/Sidebar";
+// import Sidebar from "../../components/admin/Sidebar"; // Removed redundant Sidebar import
 import NotificationSystem from "../../components/admin/NotificationSystem";
 
 // Mock data for dashboard
@@ -231,11 +231,12 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar />
-
-      <div className="flex-1 overflow-y-auto">
+    <>
+      {/* The main content area of the dashboard. Sidebar and outer layout div removed. */}
+      <div className="flex-1">
         {" "}
+        {/* Removed overflow-y-auto as AdminLayout handles scrolling */}
+        {/* Removed {" "} that was here */}
         <header className="bg-white shadow-sm">
           <div className="max-w-7xl mx-auto py-4 px-6 flex justify-between items-center">
             <div>
@@ -296,7 +297,8 @@ const AdminDashboard = () => {
               </div>
             </div>
           </div>
-        </header>{" "}
+        </header>
+        {/* Removed {" "} that was here */}
         <main className="max-w-7xl mx-auto py-6 px-6">
           {/* Dashboard Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -932,10 +934,8 @@ const AdminDashboard = () => {
           </motion.div>
         </main>
       </div>
-
-      {/* Global Notification System */}
       <NotificationSystem />
-    </div>
+    </>
   );
 };
 

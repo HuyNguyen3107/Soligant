@@ -1,6 +1,7 @@
 // src/routes/AppRoutes.jsx
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import PublicLayout from "../layouts/PublicLayout";
+import AdminLayout from "../layouts/AdminLayout";
 import HomePage from "../pages/HomePage";
 import CollectionsPage from "../pages/CollectionsPage";
 import ProductCustomizePage from "../pages/ProductCustomizePage";
@@ -47,17 +48,23 @@ const AppRoutes = () => {
         <Route path="order-tracking/:orderId" element={<OrderTracking />} />
         <Route path="order-success/:orderId" element={<OrderSuccessPage />} />
       </Route>
-      {/* Admin Routes - Không dùng PublicLayout */}
+
+      {/* Admin Login Route - Không dùng AdminLayout */}
       <Route path="/admin/login" element={<AdminLogin />} />
-      <Route path="/admin/dashboard" element={<AdminDashboard />} />
-      <Route path="/admin/orders" element={<OrderManagement />} />
-      <Route path="/admin/orders/:orderId" element={<OrderDetail />} />
-      <Route path="/admin/products" element={<ProductManagement />} />
-      <Route path="/admin/products/:productId" element={<ProductDetail />} />
-      <Route path="/admin/inventory" element={<InventoryManagement />} />
-      <Route path="/admin/reports" element={<ReportsAnalytics />} />
-      <Route path="/admin/users" element={<UserManagement />} />
-      <Route path="/admin/settings" element={<Settings />} />
+
+      {/* Admin Routes - Dùng AdminLayout */}
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<AdminDashboard />} />
+        <Route path="orders" element={<OrderManagement />} />
+        <Route path="orders/:orderId" element={<OrderDetail />} />
+        <Route path="products" element={<ProductManagement />} />
+        <Route path="products/:productId" element={<ProductDetail />} />
+        <Route path="inventory" element={<InventoryManagement />} />
+        <Route path="reports" element={<ReportsAnalytics />} />
+        <Route path="users" element={<UserManagement />} />
+        <Route path="settings" element={<Settings />} />
+      </Route>
 
       {/* Route không tìm thấy */}
       <Route path="*" element={<NotFoundPage />} />

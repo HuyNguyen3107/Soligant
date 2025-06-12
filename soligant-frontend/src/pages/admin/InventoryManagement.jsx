@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import Sidebar from "../../components/admin/Sidebar";
 
 // Mock inventory data
 const mockInventoryData = [
@@ -301,10 +300,8 @@ const InventoryManagement = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar />
-
-      <div className="flex-1 overflow-y-auto">
+    <>
+      <div className="flex-1 overflow-y-auto p-6">
         <header className="bg-white shadow-sm">
           <div className="max-w-7xl mx-auto py-4 px-6">
             <h1 className="text-2xl font-bold text-gray-900 font-utm-avo">
@@ -1023,7 +1020,7 @@ const InventoryManagement = () => {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

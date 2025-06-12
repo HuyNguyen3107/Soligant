@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import Sidebar from "../../components/admin/Sidebar";
+// import Sidebar from "../../components/admin/Sidebar";
 import { showSuccess, showError, showInfo } from "../../utils/toast";
 
 // Mock data for a specific order
@@ -215,86 +215,90 @@ const OrderDetail = () => {
 
   if (loading) {
     return (
-      <div className="flex h-screen bg-gray-100">
-        <Sidebar />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <svg
-              className="animate-spin h-10 w-10 text-soligant-primary mx-auto"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-            <p className="mt-3 text-soligant-primary">
-              Đang tải thông tin đơn hàng...
-            </p>
-          </div>
+      // <div className="flex h-screen bg-gray-100">
+      //   <Sidebar />
+      //   <div className="flex-1 flex items-center justify-center">
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <svg
+            className="animate-spin h-10 w-10 text-soligant-primary mx-auto"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+          <p className="mt-3 text-soligant-primary">
+            Đang tải thông tin đơn hàng...
+          </p>
         </div>
       </div>
+      //   </div>
+      // </div>
     );
   }
 
   if (!order) {
     return (
-      <div className="flex h-screen bg-gray-100">
-        <Sidebar />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <svg
-              className="h-16 w-16 text-gray-400 mx-auto"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden="true"
+      // <div className="flex h-screen bg-gray-100">
+      //   <Sidebar />
+      //   <div className="flex-1 flex items-center justify-center">
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <svg
+            className="h-16 w-16 text-gray-400 mx-auto"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <h3 className="mt-2 text-lg font-medium text-gray-900">
+            Không tìm thấy đơn hàng
+          </h3>
+          <p className="mt-1 text-sm text-gray-500">
+            Không thể tìm thấy đơn hàng với mã {orderId}.
+          </p>
+          <div className="mt-6">
+            <Link
+              to="/admin/orders"
+              className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-soligant-primary hover:bg-soligant-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-soligant-primary"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <h3 className="mt-2 text-lg font-medium text-gray-900">
-              Không tìm thấy đơn hàng
-            </h3>
-            <p className="mt-1 text-sm text-gray-500">
-              Không thể tìm thấy đơn hàng với mã {orderId}.
-            </p>
-            <div className="mt-6">
-              <Link
-                to="/admin/orders"
-                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-soligant-primary hover:bg-soligant-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-soligant-primary"
-              >
-                Quay lại danh sách đơn hàng
-              </Link>
-            </div>
+              Quay lại danh sách đơn hàng
+            </Link>
           </div>
         </div>
       </div>
+      //   </div>
+      // </div>
     );
   }
 
   const statusInfo = formatStatus(order.status);
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar />
+    <>
+      {/* <Sidebar /> */}
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="overflow-y-auto">
         <header className="bg-white shadow-sm">
           <div className="max-w-7xl mx-auto py-4 px-6 flex justify-between items-center">
             <div>
@@ -1095,7 +1099,7 @@ const OrderDetail = () => {
           </div>
         </main>
       </div>
-    </div>
+    </>
   );
 };
 
