@@ -18,6 +18,7 @@ const OrderSearchPage = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [loading, setLoading] = useState(false);
   const [searchPerformed, setSearchPerformed] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const handleSearch = async () => {
     if (!searchTerm.trim()) {
@@ -62,8 +63,8 @@ const OrderSearchPage = () => {
     }
   };
 
-  const handleTrackOrder = (trackingUrl) => {
-    window.open(trackingUrl, "_blank");
+  const handleImageClick = (imageData) => {
+    setSelectedImage(imageData);
   };
 
   const formatStatus = (status) => {
@@ -73,6 +74,10 @@ const OrderSearchPage = () => {
       "Chờ thanh toán": {
         text: "Chờ thanh toán",
         color: "bg-blue-100 text-blue-800",
+      },
+      "Chờ xác nhận": {
+        text: "Chờ xác nhận",
+        color: "bg-orange-100 text-orange-800",
       },
       "Đang xử lý": {
         text: "Đang xử lý",
@@ -174,21 +179,25 @@ const OrderSearchPage = () => {
                             )}
                           </p>
                           <div className="flex space-x-2">
+                            {" "}
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => handleViewOrder(order.orderId)}
                             >
                               Xem chi tiết
-                            </Button>
-                            {(order.status === "Chờ demo" ||
-                              order.status === "Pending") && (
-                              <Link to={`/finalize-order/${order.orderId}`}>
-                                <Button variant="success" size="sm">
-                                  Chốt đơn
-                                </Button>
-                              </Link>
-                            )}
+                            </Button>{" "}
+                            {/* Hiển thị nút Chốt đơn khi chưa thanh toán và chưa được chốt */}
+                            {(!order.paymentStatus ||
+                              order.paymentStatus === "Pending") &&
+                              (order.status === "Chờ demo" ||
+                                order.status === "Pending") && (
+                                <Link to={`/finalize-order/${order.orderId}`}>
+                                  <Button variant="success" size="sm">
+                                    Chốt đơn
+                                  </Button>
+                                </Link>
+                              )}
                             <Link to={`/copy-order/${order.orderId}`}>
                               <Button variant="primary" size="sm">
                                 Sao chép
@@ -203,26 +212,23 @@ const OrderSearchPage = () => {
                                 Mã vận đơn: {order.shippingInfo.trackingNumber}
                               </p>
                             )}
-                        </div>
+                        </div>{" "}
                         <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-start space-y-2 sm:space-y-0 sm:space-x-2">
+                          {" "}
                           {/* Conditional rendering for "Theo dõi đơn hàng" button */}
-                          {(order.status === "Đang xử lý" ||
-                            order.status === "Đang vận chuyển" ||
-                            order.status === "Hoàn thành") &&
+                          {/* Chỉ hiển thị nút theo dõi khi đã thanh toán */}
+                          {order.paymentStatus === "Paid" &&
                             order.shippingInfo?.trackingUrl && (
-                              <Button
-                                variant="outline"
-                                size="small"
-                                onClick={() =>
-                                  handleTrackOrder(
-                                    order.shippingInfo.trackingUrl
-                                  )
-                                }
-                                className="w-full sm:w-auto"
-                              >
-                                <FaTruck className="mr-2" />
-                                Theo dõi đơn hàng
-                              </Button>
+                              <Link to={`/order-tracking/${order.orderId}`}>
+                                <Button
+                                  variant="outline"
+                                  size="small"
+                                  className="w-full sm:w-auto"
+                                >
+                                  <FaTruck className="mr-2" />
+                                  Theo dõi đơn hàng
+                                </Button>
+                              </Link>
                             )}
                         </div>
                       </div>
@@ -248,11 +254,12 @@ const OrderSearchPage = () => {
             onClick={() => setSelectedOrder(null)}
           >
             <motion.div
-              className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[80vh] overflow-y-auto"
+              className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[80vh] overflow-y-auto scrollbar-custom"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               onClick={(e) => e.stopPropagation()}
             >
+              {" "}
               <div className="p-6">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6 border-b pb-4">
@@ -298,7 +305,7 @@ const OrderSearchPage = () => {
                           {selectedOrder.customer?.customerName ||
                             selectedOrder.customerName}
                         </span>
-                      </div>
+                      </div>{" "}
                       <div>
                         <span className="font-utm-avo font-semibold">
                           SĐT:{" "}
@@ -308,18 +315,6 @@ const OrderSearchPage = () => {
                             selectedOrder.customerPhone}
                         </span>
                       </div>
-                      {(selectedOrder.customer?.customerEmail ||
-                        selectedOrder.customerEmail) && (
-                        <div>
-                          <span className="font-utm-avo font-semibold">
-                            Email:{" "}
-                          </span>
-                          <span className="font-utm-avo">
-                            {selectedOrder.customer?.customerEmail ||
-                              selectedOrder.customerEmail}
-                          </span>
-                        </div>
-                      )}
                       {(selectedOrder.customer?.customerFacebook ||
                         selectedOrder.customerFacebook) && (
                         <div>
@@ -341,18 +336,6 @@ const OrderSearchPage = () => {
                           <span className="font-utm-avo">
                             {selectedOrder.customer?.customerInstagram ||
                               selectedOrder.customerInstagram}
-                          </span>
-                        </div>
-                      )}
-                      {(selectedOrder.customer?.customerAddress ||
-                        selectedOrder.customerAddress) && (
-                        <div>
-                          <span className="font-utm-avo font-semibold">
-                            Địa chỉ:{" "}
-                          </span>
-                          <span className="font-utm-avo">
-                            {selectedOrder.customer?.customerAddress ||
-                              selectedOrder.customerAddress}
                           </span>
                         </div>
                       )}
@@ -612,9 +595,153 @@ const OrderSearchPage = () => {
                             </div>
                           </div>
                         </div>
-                      )}
+                      )}{" "}
                     </div>{" "}
                   </div>{" "}
+                  {/* Hình ảnh sản phẩm - Luôn hiển thị */}
+                  <div className="mb-6">
+                    <h3 className="text-lg font-bold font-utm-avo text-gray-800 mb-3">
+                      📸 Hình ảnh sản phẩm
+                    </h3>
+                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* Ảnh Demo */}
+                        <div className="text-center">
+                          <div className="bg-white rounded-lg p-3 shadow-sm">
+                            {selectedOrder.productImages?.demoImage ? (
+                              <img
+                                src={selectedOrder.productImages.demoImage}
+                                alt="Ảnh demo sản phẩm"
+                                className="w-full h-40 object-cover rounded-lg mb-2 cursor-pointer hover:opacity-90 transition-opacity"
+                                loading="lazy"
+                                onClick={() =>
+                                  handleImageClick({
+                                    url: selectedOrder.productImages.demoImage,
+                                    title: "Ảnh Demo",
+                                    description:
+                                      "Hình ảnh demo ban đầu được tạo cho khách hàng xem trước",
+                                  })
+                                }
+                              />
+                            ) : (
+                              <div className="w-full h-40 bg-gray-100 rounded-lg mb-2 flex items-center justify-center border-2 border-dashed border-gray-300">
+                                <div className="text-center">
+                                  <div className="text-gray-400 text-2xl mb-1">
+                                    📷
+                                  </div>
+                                  <p className="text-gray-500 text-xs font-utm-avo">
+                                    Đang chờ demo
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+                            <h4 className="font-utm-avo font-semibold text-sm text-gray-800 mb-1">
+                              🎨 Ảnh Demo
+                            </h4>
+                            <p className="text-xs text-gray-600 font-utm-avo">
+                              {selectedOrder.productImages?.demoImage
+                                ? "Đã có demo"
+                                : "Chờ tạo demo"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Ảnh Nền Đã Chốt */}
+                        <div className="text-center">
+                          <div className="bg-white rounded-lg p-3 shadow-sm">
+                            {selectedOrder.productImages?.backgroundImage ? (
+                              <img
+                                src={
+                                  selectedOrder.productImages.backgroundImage
+                                }
+                                alt="Ảnh nền đã chốt"
+                                className="w-full h-40 object-cover rounded-lg mb-2 cursor-pointer hover:opacity-90 transition-opacity"
+                                loading="lazy"
+                                onClick={() =>
+                                  handleImageClick({
+                                    url: selectedOrder.productImages
+                                      .backgroundImage,
+                                    title: "Ảnh Nền Đã Chốt",
+                                    description:
+                                      "Background cuối cùng được khách hàng duyệt và chốt",
+                                  })
+                                }
+                              />
+                            ) : (
+                              <div className="w-full h-40 bg-gray-100 rounded-lg mb-2 flex items-center justify-center border-2 border-dashed border-gray-300">
+                                <div className="text-center">
+                                  <div className="text-gray-400 text-2xl mb-1">
+                                    🖼️
+                                  </div>
+                                  <p className="text-gray-500 text-xs font-utm-avo">
+                                    Chờ chốt nền
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+                            <h4 className="font-utm-avo font-semibold text-sm text-gray-800 mb-1">
+                              🖼️ Ảnh Nền Chốt
+                            </h4>
+                            <p className="text-xs text-gray-600 font-utm-avo">
+                              {selectedOrder.productImages?.backgroundImage
+                                ? "Đã chốt nền"
+                                : "Chờ xác nhận nền"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Ảnh Sản Phẩm Hoàn Thiện */}
+                        <div className="text-center">
+                          <div className="bg-white rounded-lg p-3 shadow-sm">
+                            {selectedOrder.productImages?.finalImage ? (
+                              <img
+                                src={selectedOrder.productImages.finalImage}
+                                alt="Ảnh sản phẩm hoàn thiện"
+                                className="w-full h-40 object-cover rounded-lg mb-2 cursor-pointer hover:opacity-90 transition-opacity"
+                                loading="lazy"
+                                onClick={() =>
+                                  handleImageClick({
+                                    url: selectedOrder.productImages.finalImage,
+                                    title: "Sản Phẩm Hoàn Thiện",
+                                    description:
+                                      "Sản phẩm cuối cùng đã hoàn thành và sẵn sàng giao hàng",
+                                  })
+                                }
+                              />
+                            ) : (
+                              <div className="w-full h-40 bg-gray-100 rounded-lg mb-2 flex items-center justify-center border-2 border-dashed border-gray-300">
+                                <div className="text-center">
+                                  <div className="text-gray-400 text-2xl mb-1">
+                                    ✨
+                                  </div>
+                                  <p className="text-gray-500 text-xs font-utm-avo">
+                                    Đang sản xuất
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+                            <h4 className="font-utm-avo font-semibold text-sm text-gray-800 mb-1">
+                              ✨ Sản Phẩm Hoàn Thiện
+                            </h4>
+                            <p className="text-xs text-gray-600 font-utm-avo">
+                              {selectedOrder.productImages?.finalImage
+                                ? "Đã hoàn thành"
+                                : "Đang xử lý"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Thông tin bổ sung */}
+                      <div className="mt-4 p-3 bg-white bg-opacity-50 rounded-lg">
+                        <p className="text-sm text-gray-700 font-utm-avo text-center">
+                          💡 <span className="font-semibold">Lưu ý:</span> Click
+                          vào ảnh để xem kích thước đầy đủ. Những ảnh chưa có sẽ
+                          được cập nhật khi hoàn thành.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                   {/* Thông tin giá */}
                   <div>
                     <h3 className="text-lg font-bold font-utm-avo text-gray-800 mb-3">
@@ -1084,7 +1211,7 @@ const OrderSearchPage = () => {
                               selectedOrder.backgroundSong}
                           </span>
                         </div>
-                      )}
+                      )}{" "}
                     </div>
                   </div>{" "}
                   {/* Thời gian tạo đơn */}
@@ -1111,6 +1238,58 @@ const OrderSearchPage = () => {
                     Đóng
                   </Button>
                 </div>
+              </div>
+            </motion.div>{" "}
+          </motion.div>
+        )}
+        {/* Image Modal */}
+        {selectedImage && (
+          <motion.div
+            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-[60]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            onClick={() => setSelectedImage(null)}
+          >
+            <motion.div
+              className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex justify-between items-center p-4 border-b">
+                <div>
+                  <h3 className="text-lg font-bold font-utm-avo text-soligant-primary">
+                    {selectedImage.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 font-utm-avo">
+                    {selectedImage.description}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSelectedImage(null)}
+                  className="text-gray-500 hover:text-gray-700 text-xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Image */}
+              <div className="p-4 flex justify-center">
+                <img
+                  src={selectedImage.url}
+                  alt={selectedImage.title}
+                  className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-lg"
+                  loading="lazy"
+                />
+              </div>
+
+              {/* Footer */}
+              <div className="p-4 border-t bg-gray-50 text-center">
+                <p className="text-sm text-gray-600 font-utm-avo">
+                  💡 <span className="font-semibold">Mẹo:</span> Click vào vùng
+                  tối xung quanh để đóng
+                </p>
               </div>
             </motion.div>
           </motion.div>

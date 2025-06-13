@@ -12,6 +12,7 @@ import OrderSearchPage from "../pages/OrderSearchPage";
 import CopyOrderPage from "../pages/CopyOrderPage";
 import OrderFinalizePage from "../pages/OrderFinalizePage";
 import OrderTracking from "../pages/OrderTracking";
+import InventoryTestPage from "../pages/InventoryTestPage";
 import NotFoundPage from "../pages/NotFoundPage";
 
 // Admin Pages
@@ -44,8 +45,12 @@ const AppRoutes = () => {
         <Route path="checkout" element={<CheckoutPage />} />{" "}
         <Route path="order-search" element={<OrderSearchPage />} />
         <Route path="copy-order/:orderId" element={<CopyOrderPage />} />
-        <Route path="finalize-order/:orderId" element={<OrderFinalizePage />} />
+        <Route
+          path="finalize-order/:orderId"
+          element={<OrderFinalizePage />}
+        />{" "}
         <Route path="order-tracking/:orderId" element={<OrderTracking />} />
+        <Route path="inventory-test" element={<InventoryTestPage />} />
         <Route path="order-success/:orderId" element={<OrderSuccessPage />} />
       </Route>
 

@@ -18,6 +18,7 @@ const OrderFinalizePage = () => {
   const [orderData, setOrderData] = useState(null);
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Form data for finalization
   const [formData, setFormData] = useState({
@@ -86,7 +87,7 @@ const OrderFinalizePage = () => {
     setSubmitting(true);
     try {
       // Simulate moving order to PostgreSQL and updating status
-      await updateOrderStatusInGoogleSheets(orderId, "Chờ thanh toán");
+      await updateOrderStatusInGoogleSheets(orderId, "Chờ xác nhận");
 
       // In real app, this would also save finalization data to PostgreSQL
       console.log("Order finalization data:", {
@@ -94,11 +95,10 @@ const OrderFinalizePage = () => {
         ...formData,
         finalizedAt: new Date().toISOString(),
       });
+      toast.success("Đã chốt đơn thành công! Đơn hàng đang chờ xác nhận.");
 
-      toast.success("Đã chốt đơn thành công! Đơn hàng đang chờ thanh toán.");
-
-      // Navigate to order success page
-      navigate(`/order-success/${orderId}`);
+      // Show success modal instead of navigating
+      setShowSuccessModal(true);
     } catch (error) {
       console.error("Error finalizing order:", error);
       toast.error("Có lỗi xảy ra khi chốt đơn");
@@ -357,9 +357,93 @@ const OrderFinalizePage = () => {
                   </Button>
                 </div>
               </form>
-            </motion.div>
+            </motion.div>{" "}
           </div>
         </div>
+
+        {/* Success Modal */}
+        {showSuccessModal && (
+          <motion.div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <motion.div
+              className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+            >
+              <div className="text-center">
+                {/* Success Icon */}
+                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                  <svg
+                    className="h-6 w-6 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+
+                {/* Title */}
+                <h3 className="text-lg font-bold text-gray-900 mb-2 font-utm-avo">
+                  Chốt đơn thành công!
+                </h3>
+
+                {/* Message */}
+                <div className="text-gray-600 mb-6 font-utm-avo">
+                  <p className="mb-2">
+                    Đơn hàng <span className="font-semibold">#{orderId}</span>{" "}
+                    đã được chốt thành công.
+                  </p>
+                  <p className="mb-2">
+                    Đơn hàng hiện đang{" "}
+                    <span className="font-semibold text-orange-600">
+                      chờ xác nhận
+                    </span>{" "}
+                    từ phía admin.
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất để xác
+                    nhận đơn hàng và hướng dẫn thanh toán.
+                  </p>
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate("/order-search")}
+                    className="flex-1"
+                  >
+                    Tìm kiếm đơn hàng
+                  </Button>
+                  <Button
+                    variant="primary"
+                    onClick={() => navigate("/")}
+                    className="flex-1"
+                  >
+                    Về trang chủ
+                  </Button>
+                </div>
+
+                {/* Contact Info */}
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <p className="text-xs text-gray-500 font-utm-avo">
+                    Có thắc mắc? Liên hệ với chúng tôi qua Facebook hoặc
+                    Instagram
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
       </div>
     </div>
   );

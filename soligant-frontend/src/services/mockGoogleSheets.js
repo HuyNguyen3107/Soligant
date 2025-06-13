@@ -41,6 +41,12 @@ let mockOrdersDatabase = [
     estimatedDelivery: "2024-01-22",
     paymentMethod: "Chuyển khoản",
     paymentStatus: "Paid",
+    // Thông tin ảnh sản phẩm
+    productImages: {
+      demoImage: "https://picsum.photos/400/300?random=1", // Ảnh demo đã có
+      backgroundImage: "https://picsum.photos/400/300?random=2", // Ảnh nền đã chốt
+      finalImage: "https://picsum.photos/400/300?random=3", // Ảnh sản phẩm hoàn thiện
+    },
     shippingInfo: {
       // Added for testing tracking button
       trackingUrl: "https://example.com/track/SO20240115001",
@@ -338,6 +344,12 @@ let mockOrdersDatabase = [
     customizationNotes: "Đơn hàng test trạng thái Chờ demo.",
     paymentMethod: "Chưa chọn",
     paymentStatus: "Pending",
+    // Thông tin ảnh sản phẩm - chưa có ảnh nào
+    productImages: {
+      demoImage: null, // Chưa có ảnh demo
+      backgroundImage: null, // Chưa có ảnh nền
+      finalImage: null, // Chưa có ảnh sản phẩm hoàn thiện
+    },
     shippingInfo: {
       // Has tracking URL, but status should prevent button
       trackingUrl: "https://example.com/track/SO20250612006",
@@ -379,6 +391,74 @@ let mockOrdersDatabase = [
     char1_bottomColor: "Xanh",
     char1_hair: "Tóc dài",
     char1_face: "Mặt ngầu",
+  },
+  // New order for testing "Chờ xác nhận" status
+  {
+    orderId: "SO20250613008",
+    createdAt: "2025-06-13T10:00:00Z",
+    status: "Chờ xác nhận", // <--- New status for testing
+    customerName: "Tester Chờ Xác Nhận",
+    customerPhone: "0900000003",
+    customerFacebook: "tester.choxacnhan",
+    customerInstagram: "tester_choxacnhan_ig",
+    isUrgent: false,
+    version: "Version 1",
+    versionPrice: 245000,
+    totalPrice: 245000,
+    customizationNotes: "Đơn hàng test trạng thái Chờ xác nhận từ admin.",
+    paymentMethod: "Chuyển khoản",
+    paymentStatus: "Pending", // Chưa thanh toán, chờ admin xác nhận
+    shippingInfo: {
+      trackingUrl: "https://example.com/track/SO20250613008",
+      trackingNumber: "TRACK008",
+    },
+    customizationData: JSON.stringify({
+      version: { selected: "version1" },
+      characters: { character1: {}, character2: {} },
+    }),
+    char1_topColor: "Tím",
+    char1_bottomColor: "Trắng",
+    char1_hair: "Tóc bob",
+    char1_face: "Mặt cười",
+  },
+  // New order for testing shipping status with images
+  {
+    orderId: "SO20250614009",
+    createdAt: "2025-06-14T11:00:00Z",
+    status: "Đang vận chuyển", // <--- Status for testing images
+    customerName: "Tester Đang Vận Chuyển",
+    customerPhone: "0900000004",
+    customerFacebook: "tester.dangvanchuyen",
+    customerInstagram: "tester_shipping_ig",
+    isUrgent: false,
+    version: "Version 2",
+    versionPrice: 250000,
+    totalPrice: 275000,
+    customizationNotes: "Đơn hàng test hiển thị ảnh - Đang vận chuyển.",
+    paymentMethod: "Chuyển khoản",
+    paymentStatus: "Paid", // Đã thanh toán - sẽ hiển thị ảnh
+    // Thông tin ảnh sản phẩm - có một phần ảnh
+    productImages: {
+      demoImage: "https://picsum.photos/400/300?random=4", // Đã có ảnh demo
+      backgroundImage: "https://picsum.photos/400/300?random=5", // Đã có ảnh nền
+      finalImage: null, // Chưa có ảnh sản phẩm hoàn thiện (đang vận chuyển)
+    },
+    shippingInfo: {
+      trackingUrl: "https://example.com/track/SO20250614009",
+      trackingNumber: "TRACK009",
+    },
+    customizationData: JSON.stringify({
+      version: { selected: "version2" },
+      characters: { character1: {}, character2: {} },
+    }),
+    char1_topColor: "Xanh",
+    char1_bottomColor: "Đen",
+    char1_hair: "Tóc dài",
+    char1_face: "Mặt cười",
+    char2_topColor: "Hồng",
+    char2_bottomColor: "Trắng",
+    char2_hair: "Tóc ngắn",
+    char2_face: "Mặt dễ thương",
   },
 ];
 
