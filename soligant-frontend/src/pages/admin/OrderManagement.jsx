@@ -113,13 +113,6 @@ const formatStatus = (status) => {
 };
 
 const OrderManagement = () => {
-  // Auth check
-  useEffect(() => {
-    const adminAuth = localStorage.getItem("adminAuth");
-    if (!adminAuth) {
-      window.location.href = "/admin/login";
-    }
-  }, []);
   // Custom debounce hook
   function useDebounce(callback, delay) {
     const timeoutRef = useRef(null);

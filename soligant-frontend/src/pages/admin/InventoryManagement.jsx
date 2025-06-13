@@ -128,14 +128,6 @@ const mockStockMovements = [
 ];
 
 const InventoryManagement = () => {
-  // Auth check
-  useEffect(() => {
-    const adminAuth = localStorage.getItem("adminAuth");
-    if (!adminAuth) {
-      window.location.href = "/admin/login";
-    }
-  }, []);
-
   const [inventoryItems, setInventoryItems] = useState([]);
   const [stockMovements, setStockMovements] = useState([]);
   const [loading, setLoading] = useState(true);

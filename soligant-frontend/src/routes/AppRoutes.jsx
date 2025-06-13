@@ -20,6 +20,7 @@ import AdminLogin from "../pages/admin/AdminLogin";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import OrderManagement from "../pages/admin/OrderManagement";
 import OrderDetail from "../pages/admin/OrderDetail";
+import MyOrderManagement from "../pages/admin/MyOrderManagement";
 import ProductManagement from "../pages/admin/ProductManagement";
 import ProductDetail from "../pages/admin/ProductDetail";
 import InventoryManagement from "../pages/admin/InventoryManagement";
@@ -53,16 +54,15 @@ const AppRoutes = () => {
         <Route path="inventory-test" element={<InventoryTestPage />} />
         <Route path="order-success/:orderId" element={<OrderSuccessPage />} />
       </Route>
-
       {/* Admin Login Route - Không dùng AdminLayout */}
-      <Route path="/admin/login" element={<AdminLogin />} />
-
+      <Route path="/admin/login" element={<AdminLogin />} />{" "}
       {/* Admin Routes - Dùng AdminLayout */}
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="orders" element={<OrderManagement />} />
         <Route path="orders/:orderId" element={<OrderDetail />} />
+        <Route path="my-orders" element={<MyOrderManagement />} />
         <Route path="products" element={<ProductManagement />} />
         <Route path="products/:productId" element={<ProductDetail />} />
         <Route path="inventory" element={<InventoryManagement />} />
@@ -70,7 +70,6 @@ const AppRoutes = () => {
         <Route path="users" element={<UserManagement />} />
         <Route path="settings" element={<Settings />} />
       </Route>
-
       {/* Route không tìm thấy */}
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

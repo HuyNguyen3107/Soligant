@@ -5,6 +5,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 
+// Race condition protection hooks
+import {
+  useCustomizationProtection,
+  usePreventDoubleClick,
+} from "../hooks/useRaceConditionProtection";
+
 // Components
 import Button from "../components/ui/Button";
 import Loading from "../components/ui/Loading";
@@ -55,6 +61,12 @@ const ProductCustomizePage = () => {
   const { collectionId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  // Race condition protection
+  const customizationProtection = useCustomizationProtection({
+    userId: `user_${Date.now()}`, // In real app, use actual user ID or session ID
+  });
+  const preventDoubleClick = usePreventDoubleClick(500);
 
   // Local state
   const [loading, setLoading] = useState(true);
@@ -151,289 +163,306 @@ const ProductCustomizePage = () => {
       ],
     },
   ];
-
-  // Handlers
-  const handleVersionSelect = (versionId) => {
-    // Nếu đã có combo trọn bộ, hiển thị cảnh báo
-    if (customization.fullCombo) {
-      openConfirmModal(
-        "Xác nhận thay đổi",
-        "Chọn phiên bản riêng sẽ hủy combo trọn bộ hiện tại. Bạn có chắc chắn muốn hủy combo?",
-        () => {
-          // Hủy combo trọn bộ
-          dispatch(removeFullCombo());
-          // Thiết lập version mới
-          dispatch(setVersion(versionId));
-          dispatch(recalculatePrice());
-          setSelectedTab("character1");
-        }
-      );
-    } else {
-      // Trường hợp bình thường - không có combo
-      dispatch(setVersion(versionId));
-      dispatch(recalculatePrice());
-      setSelectedTab("character1");
-    }
-  };
-
-  const handleCharacter1TopColorChange = (color) => {
-    dispatch(setCharacter1TopColor(color));
-  };
-
-  const handleCharacter1BottomColorChange = (color) => {
-    dispatch(setCharacter1BottomColor(color));
-  };
-
-  const handleCharacter2TopColorChange = (color) => {
-    dispatch(setCharacter2TopColor(color));
-  };
-
-  const handleCharacter2BottomColorChange = (color) => {
-    dispatch(setCharacter2BottomColor(color));
-  };
-
-  const handleOutfitSelect = (outfitId) => {
-    dispatch(setOutfit(outfitId));
-  };
-
-  const handleHairSelect = (hair) => {
-    if (selectedTab === "character1") {
-      dispatch(setCharacter1Hair(hair));
-    } else if (selectedTab === "character2") {
-      dispatch(setCharacter2Hair(hair));
-    }
-
-    // Recalculate total price
-    dispatch(recalculatePrice());
-  };
-
-  const handleFaceSelect = (face) => {
-    if (selectedTab === "character1") {
-      dispatch(setCharacter1Face(face));
-    } else if (selectedTab === "character2") {
-      dispatch(setCharacter2Face(face));
-    }
-
-    // Recalculate total price
-    dispatch(recalculatePrice());
-  };
-
-  // Xử lý phụ kiện, cho phép thêm ngay cả khi đã có trong combo
-  const handleAccessoryToggle = (accessory) => {
-    // Kiểm tra xem phụ kiện này có trong trọn bộ combo không
-    const isInFullCombo =
-      customization.fullCombo &&
-      customization.fullCombo.includes?.accessories?.includes(accessory.id);
-
-    // Nếu phụ kiện đã có trong combo trọn bộ, hiển thị thông báo
-    if (isInFullCombo) {
-      toast.info(`${accessory.name} đã có sẵn trong combo trọn bộ của bạn`);
-      return;
-    }
-
-    // Cho phép chọn phụ kiện dù nó đã có trong combo phụ kiện
-    // Chỉ kiểm tra xem phụ kiện đã thêm riêng chưa
-
-    // Xử lý thêm/xóa phụ kiện bổ sung
-    const existingAccessory = customization.additionalAccessories?.find(
-      (acc) => acc.id === accessory.id
-    );
-
-    if (existingAccessory) {
-      dispatch(removeAdditionalAccessory(accessory.id));
-      dispatch(recalculatePrice()); // Đảm bảo tính lại giá
-      toast.info(`Đã xóa ${accessory.name} khỏi giỏ hàng`);
-    } else {
-      dispatch(addAdditionalAccessory(accessory));
-      dispatch(recalculatePrice()); // Đảm bảo tính lại giá
-      toast.success(`Đã thêm ${accessory.name} vào giỏ hàng`);
-    }
-  };
-
-  // Xử lý thú cưng, cho phép thêm ngay cả khi đã có combo
-  const handlePetSelect = (pet) => {
-    // Kiểm tra xem thú cưng đã có trong combo chưa
-    const isInFullCombo =
-      customization.fullCombo &&
-      customization.fullCombo.includes?.pet === pet.id;
-
-    // Nếu thú cưng đã có trong combo trọn bộ, hiển thị thông báo
-    if (isInFullCombo) {
-      toast.info(`${pet.name} đã có sẵn trong combo trọn bộ của bạn`);
-      return;
-    }
-
-    // Cho phép chọn thú cưng dù đã có trong combo phụ kiện
-
-    // Xử lý chọn/hủy thú cưng bổ sung
-    if (
-      customization.additionalPet &&
-      customization.additionalPet.id === pet.id
-    ) {
-      dispatch(setAdditionalPet(null));
-      dispatch(recalculatePrice()); // Đảm bảo tính lại giá
-      toast.info(`Đã hủy chọn ${pet.name}`);
-    } else {
-      // Nếu đã chọn thú cưng khác, hiển thị thông báo
-      if (customization.additionalPet) {
+  // Handlers với race condition protection
+  const handleVersionSelect = customizationProtection.protectVersionSelect(
+    preventDoubleClick(async (versionId) => {
+      // Nếu đã có combo trọn bộ, hiển thị cảnh báo
+      if (customization.fullCombo) {
         openConfirmModal(
-          "Xác nhận thay đổi thú cưng",
-          `Bạn đã chọn ${customization.additionalPet.name}. Chọn ${pet.name} sẽ thay thế thú cưng đã chọn. Bạn có muốn tiếp tục?`,
+          "Xác nhận thay đổi",
+          "Chọn phiên bản riêng sẽ hủy combo trọn bộ hiện tại. Bạn có chắc chắn muốn hủy combo?",
           () => {
-            dispatch(setAdditionalPet(pet));
-            dispatch(recalculatePrice()); // Đảm bảo tính lại giá
-            toast.success(`Đã chọn ${pet.name}`);
+            // Hủy combo trọn bộ
+            dispatch(removeFullCombo());
+            // Thiết lập version mới
+            dispatch(setVersion(versionId));
+            dispatch(recalculatePrice());
+            setSelectedTab("character1");
           }
         );
       } else {
-        dispatch(setAdditionalPet(pet));
-        dispatch(recalculatePrice()); // Đảm bảo tính lại giá
-        toast.success(`Đã chọn ${pet.name}`);
+        // Trường hợp bình thường - không có combo
+        dispatch(setVersion(versionId));
+        dispatch(recalculatePrice());
+        setSelectedTab("character1");
       }
-    }
-  };
+    })
+  );
 
-  // Xử lý accessory combo - Cập nhật theo yêu cầu mới
-  const handleAccessoryComboToggle = (combo) => {
-    if (customization.accessoryCombo?.id === combo.id) {
-      // Hủy chọn nếu đã chọn combo này
-      dispatch(removeAccessoryCombo());
-      dispatch(recalculatePrice()); // Đảm bảo tính lại giá sau khi hủy
-      toast.info(`Đã hủy combo ${combo.name}`);
-    } else {
-      // Nếu đang có combo phụ kiện khác
-      if (customization.accessoryCombo) {
-        openConfirmModal(
-          "Xác nhận thay đổi combo phụ kiện",
-          `Thay đổi combo phụ kiện từ "${customization.accessoryCombo.name}" sang "${combo.name}". Bạn có muốn tiếp tục?`,
-          () => {
-            dispatch(setAccessoryCombo(combo));
-            dispatch(recalculatePrice()); // Đảm bảo tính lại giá
-            toast.success(`Đã chọn combo ${combo.name}`);
-          }
-        );
+  const handleCharacter1TopColorChange =
+    customizationProtection.protectColorChange(async (color) => {
+      dispatch(setCharacter1TopColor(color));
+    });
+
+  const handleCharacter1BottomColorChange =
+    customizationProtection.protectColorChange(async (color) => {
+      dispatch(setCharacter1BottomColor(color));
+    });
+  const handleCharacter2TopColorChange =
+    customizationProtection.protectColorChange(async (color) => {
+      dispatch(setCharacter2TopColor(color));
+    });
+  const handleCharacter2BottomColorChange =
+    customizationProtection.protectColorChange(async (color) => {
+      dispatch(setCharacter2BottomColor(color));
+    });
+
+  const handleOutfitSelect = customizationProtection.protectFunction(
+    async (outfitId) => {
+      dispatch(setOutfit(outfitId));
+    },
+    "outfit_select"
+  );
+
+  const handleHairSelect = customizationProtection.protectHairSelect(
+    async (hair) => {
+      if (selectedTab === "character1") {
+        dispatch(setCharacter1Hair(hair));
+      } else if (selectedTab === "character2") {
+        dispatch(setCharacter2Hair(hair));
+      }
+
+      // Recalculate total price
+      dispatch(recalculatePrice());
+    }
+  );
+  const handleFaceSelect = customizationProtection.protectFaceSelect(
+    async (face) => {
+      if (selectedTab === "character1") {
+        dispatch(setCharacter1Face(face));
+      } else if (selectedTab === "character2") {
+        dispatch(setCharacter2Face(face));
+      }
+
+      // Recalculate total price
+      dispatch(recalculatePrice());
+    }
+  );
+  // Xử lý phụ kiện, cho phép thêm ngay cả khi đã có trong combo
+  const handleAccessoryToggle = customizationProtection.protectAccessoryToggle(
+    preventDoubleClick(async (accessory) => {
+      // Kiểm tra xem phụ kiện này có trong trọn bộ combo không
+      const isInFullCombo =
+        customization.fullCombo &&
+        customization.fullCombo.includes?.accessories?.includes(accessory.id);
+
+      // Nếu phụ kiện đã có trong combo trọn bộ, hiển thị thông báo
+      if (isInFullCombo) {
+        toast.info(`${accessory.name} đã có sẵn trong combo trọn bộ của bạn`);
         return;
       }
 
-      // Không cần kiểm tra trùng lặp phụ kiện nữa vì phụ kiện trong combo và phụ kiện riêng có thể trùng nhau
-      dispatch(setAccessoryCombo(combo));
-      dispatch(recalculatePrice());
-      toast.success(`Đã chọn combo ${combo.name}`);
-    }
-  };
+      // Cho phép chọn phụ kiện dù nó đã có trong combo phụ kiện
+      // Chỉ kiểm tra xem phụ kiện đã thêm riêng chưa
 
-  // Xử lý full combo
-  const handleFullComboToggle = (combo) => {
-    if (customization.fullCombo?.id === combo.id) {
-      // Hủy chọn nếu đã chọn combo này
-      dispatch(removeFullCombo());
-      toast.info(`Đã hủy combo ${combo.name}`);
-      dispatch(recalculatePrice());
-    } else {
-      let confirmNeeded = false;
-      let message = "";
+      // Xử lý thêm/xóa phụ kiện bổ sung
+      const existingAccessory = customization.additionalAccessories?.find(
+        (acc) => acc.id === accessory.id
+      );
 
-      // Nếu đang có combo trọn bộ khác
-      if (customization.fullCombo) {
-        confirmNeeded = true;
-        message = `Thay đổi combo trọn bộ từ "${customization.fullCombo.name}" sang "${combo.name}". Bạn có muốn tiếp tục?`;
-      }
-      // Kiểm tra xem version hiện tại có khớp với version trong combo không
-      else if (
-        customization.version.selected &&
-        customization.version.selected !== combo.includes.version
-      ) {
-        confirmNeeded = true;
-        message = `Chọn combo này sẽ thay đổi phiên bản của bạn từ ${
-          customization.version.selected === "version1"
-            ? "Version 1"
-            : "Version 2"
-        } sang ${
-          combo.includes.version === "version1" ? "Version 1" : "Version 2"
-        }. Bạn có muốn tiếp tục?`;
-      }
-
-      if (confirmNeeded) {
-        openConfirmModal("Xác nhận thay đổi combo", message, () => {
-          dispatch(setFullCombo(combo));
-          dispatch(recalculatePrice());
-          toast.success(`Đã chọn combo ${combo.name}`);
-        });
+      if (existingAccessory) {
+        dispatch(removeAdditionalAccessory(accessory.id));
+        dispatch(recalculatePrice()); // Đảm bảo tính lại giá
+        toast.info(`Đã xóa ${accessory.name} khỏi giỏ hàng`);
       } else {
-        dispatch(setFullCombo(combo));
+        dispatch(addAdditionalAccessory(accessory));
+        dispatch(recalculatePrice()); // Đảm bảo tính lại giá
+        toast.success(`Đã thêm ${accessory.name} vào giỏ hàng`);
+      }
+    })
+  );
+
+  // Xử lý thú cưng, cho phép thêm ngay cả khi đã có combo
+  const handlePetSelect = customizationProtection.protectPetSelect(
+    preventDoubleClick(async (pet) => {
+      // Kiểm tra xem thú cưng đã có trong combo chưa
+      const isInFullCombo =
+        customization.fullCombo &&
+        customization.fullCombo.includes?.pet === pet.id;
+
+      // Nếu thú cưng đã có trong combo trọn bộ, hiển thị thông báo
+      if (isInFullCombo) {
+        toast.info(`${pet.name} đã có sẵn trong combo trọn bộ của bạn`);
+        return;
+      }
+
+      // Cho phép chọn thú cưng dù đã có trong combo phụ kiện
+
+      // Xử lý chọn/hủy thú cưng bổ sung
+      if (
+        customization.additionalPet &&
+        customization.additionalPet.id === pet.id
+      ) {
+        dispatch(setAdditionalPet(null));
+        dispatch(recalculatePrice()); // Đảm bảo tính lại giá
+        toast.info(`Đã hủy chọn ${pet.name}`);
+      } else {
+        // Nếu đã chọn thú cưng khác, hiển thị thông báo        // Nếu đã chọn thú cưng khác, hiển thị thông báo
+        if (customization.additionalPet) {
+          openConfirmModal(
+            "Xác nhận thay đổi thú cưng",
+            `Bạn đã chọn ${customization.additionalPet.name}. Chọn ${pet.name} sẽ thay thế thú cưng đã chọn. Bạn có muốn tiếp tục?`,
+            () => {
+              dispatch(setAdditionalPet(pet));
+              dispatch(recalculatePrice()); // Đảm bảo tính lại giá
+              toast.success(`Đã chọn ${pet.name}`);
+            }
+          );
+        } else {
+          dispatch(setAdditionalPet(pet));
+          dispatch(recalculatePrice()); // Đảm bảo tính lại giá
+          toast.success(`Đã chọn ${pet.name}`);
+        }
+      }
+    })
+  );
+
+  // Xử lý accessory combo - Cập nhật theo yêu cầu mới
+  const handleAccessoryComboToggle = customizationProtection.protectComboToggle(
+    preventDoubleClick(async (combo) => {
+      if (customization.accessoryCombo?.id === combo.id) {
+        // Hủy chọn nếu đã chọn combo này
+        dispatch(removeAccessoryCombo());
+        dispatch(recalculatePrice()); // Đảm bảo tính lại giá sau khi hủy
+        toast.info(`Đã hủy combo ${combo.name}`);
+      } else {
+        // Nếu đang có combo phụ kiện khác
+        if (customization.accessoryCombo) {
+          openConfirmModal(
+            "Xác nhận thay đổi combo phụ kiện",
+            `Thay đổi combo phụ kiện từ "${customization.accessoryCombo.name}" sang "${combo.name}". Bạn có muốn tiếp tục?`,
+            () => {
+              dispatch(setAccessoryCombo(combo));
+              dispatch(recalculatePrice()); // Đảm bảo tính lại giá
+              toast.success(`Đã chọn combo ${combo.name}`);
+            }
+          );
+          return;
+        }
+
+        // Không cần kiểm tra trùng lặp phụ kiện nữa vì phụ kiện trong combo và phụ kiện riêng có thể trùng nhau
+        dispatch(setAccessoryCombo(combo));
         dispatch(recalculatePrice());
         toast.success(`Đã chọn combo ${combo.name}`);
       }
-    }
-  };
+    })
+  );
+  // Xử lý full combo
+  const handleFullComboToggle = customizationProtection.protectComboToggle(
+    preventDoubleClick(async (combo) => {
+      if (customization.fullCombo?.id === combo.id) {
+        // Hủy chọn nếu đã chọn combo này
+        dispatch(removeFullCombo());
+        toast.info(`Đã hủy combo ${combo.name}`);
+        dispatch(recalculatePrice());
+      } else {
+        let confirmNeeded = false;
+        let message = "";
 
-  const handleProceedToBackground = () => {
-    // Validation
-    if (!customization.version.selected && !customization.fullCombo) {
-      toast.warning("Vui lòng chọn phiên bản sản phẩm hoặc combo trọn bộ");
-      setSelectedTab("version");
-      return;
-    }
+        // Nếu đang có combo trọn bộ khác
+        if (customization.fullCombo) {
+          confirmNeeded = true;
+          message = `Thay đổi combo trọn bộ từ "${customization.fullCombo.name}" sang "${combo.name}". Bạn có muốn tiếp tục?`;
+        }
+        // Kiểm tra xem version hiện tại có khớp với version trong combo không
+        else if (
+          customization.version.selected &&
+          customization.version.selected !== combo.includes.version
+        ) {
+          confirmNeeded = true;
+          message = `Chọn combo này sẽ thay đổi phiên bản của bạn từ ${
+            customization.version.selected === "version1"
+              ? "Version 1"
+              : "Version 2"
+          } sang ${
+            combo.includes.version === "version1" ? "Version 1" : "Version 2"
+          }. Bạn có muốn tiếp tục?`;
+        }
 
-    if (
-      !customization.characters.character1.topColor ||
-      !customization.characters.character1.bottomColor
-    ) {
-      toast.warning("Vui lòng chọn màu áo và quần cho nhân vật 1");
-      setSelectedTab("character1");
-      return;
-    }
+        if (confirmNeeded) {
+          openConfirmModal("Xác nhận thay đổi combo", message, () => {
+            dispatch(setFullCombo(combo));
+            dispatch(recalculatePrice());
+            toast.success(`Đã chọn combo ${combo.name}`);
+          });
+        } else {
+          dispatch(setFullCombo(combo));
+          dispatch(recalculatePrice());
+          toast.success(`Đã chọn combo ${combo.name}`);
+        }
+      }
+    })
+  );
+  const handleProceedToBackground = customizationProtection.protectFunction(
+    preventDoubleClick(async () => {
+      // Validation
+      if (!customization.version.selected && !customization.fullCombo) {
+        toast.warning("Vui lòng chọn phiên bản sản phẩm hoặc combo trọn bộ");
+        setSelectedTab("version");
+        return;
+      }
 
-    if (!customization.characters.character1.face) {
-      toast.warning("Vui lòng chọn kiểu mặt cho nhân vật 1");
-      setSelectedTab("character1");
-      return;
-    }
-
-    if (
-      !customization.characters.character1.hair &&
-      !customization.fullCombo?.includes?.hair
-    ) {
-      toast.warning("Vui lòng chọn kiểu tóc cho nhân vật 1");
-      setSelectedTab("character1");
-      return;
-    }
-
-    // Nếu là version 2 hoặc combo có 2 nhân vật
-    const isVersion2 =
-      customization.version.selected === "version2" ||
-      customization.fullCombo?.includes?.version === "version2";
-
-    if (isVersion2) {
       if (
-        !customization.characters.character2.topColor ||
-        !customization.characters.character2.bottomColor
+        !customization.characters.character1.topColor ||
+        !customization.characters.character1.bottomColor
       ) {
-        toast.warning("Vui lòng chọn màu áo và quần cho nhân vật 2");
-        setSelectedTab("character2");
+        toast.warning("Vui lòng chọn màu áo và quần cho nhân vật 1");
+        setSelectedTab("character1");
         return;
       }
 
-      if (!customization.characters.character2.face) {
-        toast.warning("Vui lòng chọn kiểu mặt cho nhân vật 2");
-        setSelectedTab("character2");
+      if (!customization.characters.character1.face) {
+        toast.warning("Vui lòng chọn kiểu mặt cho nhân vật 1");
+        setSelectedTab("character1");
         return;
       }
 
       if (
-        !customization.characters.character2.hair &&
+        !customization.characters.character1.hair &&
         !customization.fullCombo?.includes?.hair
       ) {
-        toast.warning("Vui lòng chọn kiểu tóc cho nhân vật 2");
-        setSelectedTab("character2");
+        toast.warning("Vui lòng chọn kiểu tóc cho nhân vật 1");
+        setSelectedTab("character1");
         return;
       }
-    }
 
-    // Điều hướng đến trang background
-    dispatch(setCurrentStep("background"));
-    navigate(`/collections/${collectionId}/background`);
-  };
+      // Nếu là version 2 hoặc combo có 2 nhân vật
+      const isVersion2 =
+        customization.version.selected === "version2" ||
+        customization.fullCombo?.includes?.version === "version2";
+
+      if (isVersion2) {
+        if (
+          !customization.characters.character2.topColor ||
+          !customization.characters.character2.bottomColor
+        ) {
+          toast.warning("Vui lòng chọn màu áo và quần cho nhân vật 2");
+          setSelectedTab("character2");
+          return;
+        }
+
+        if (!customization.characters.character2.face) {
+          toast.warning("Vui lòng chọn kiểu mặt cho nhân vật 2");
+          setSelectedTab("character2");
+          return;
+        }
+
+        if (
+          !customization.characters.character2.hair &&
+          !customization.fullCombo?.includes?.hair
+        ) {
+          toast.warning("Vui lòng chọn kiểu tóc cho nhân vật 2");
+          setSelectedTab("character2");
+          return;
+        }
+      }
+
+      // Điều hướng đến trang background
+      dispatch(setCurrentStep("background"));
+      navigate(`/collections/${collectionId}/background`);
+    }),
+    "proceed_to_background"
+  );
 
   // Hàm kiểm tra xem một item cụ thể có nằm trong combo trọn bộ không
   const isItemInFullCombo = (itemId) => {
@@ -580,7 +609,8 @@ const ProductCustomizePage = () => {
             <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
               <h3 className="text-xl font-bold mb-4 font-utm-avo">
                 Màu quần áo
-              </h3>              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              </h3>{" "}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <ColorPicker
                   colors={clothingColors}
                   selectedColor={customization.characters.character1.topColor}

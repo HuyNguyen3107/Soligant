@@ -75,6 +75,28 @@ const UserManagement = () => {
       avatar: null,
       permissions: ["order_view"],
     },
+    {
+      id: 5,
+      name: "Lê Văn Suspended",
+      email: "suspended@soligant.com",
+      role: "Staff",
+      status: "suspended",
+      lastLogin: "2024-01-08 11:30:00",
+      createdAt: "2024-01-04",
+      avatar: null,
+      permissions: ["order_view"],
+    },
+    {
+      id: 6,
+      name: "Hoàng Thị Pending",
+      email: "pending@soligant.com",
+      role: "Manager",
+      status: "pending",
+      lastLogin: null,
+      createdAt: "2024-01-15",
+      avatar: null,
+      permissions: [],
+    },
   ];
 
   // Mock data cho roles
@@ -136,6 +158,42 @@ const UserManagement = () => {
     { id: "system_settings", name: "System Settings", category: "System" },
   ];
 
+  // Function để get status styling và text
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case "active":
+        return {
+          className: "bg-green-100 text-green-800",
+          icon: <CheckCircleIcon className="h-3 w-3 mr-1" />,
+          text: "Hoạt động",
+        };
+      case "inactive":
+        return {
+          className: "bg-gray-100 text-gray-800",
+          icon: <XCircleIcon className="h-3 w-3 mr-1" />,
+          text: "Không hoạt động",
+        };
+      case "suspended":
+        return {
+          className: "bg-red-100 text-red-800",
+          icon: <ExclamationTriangleIcon className="h-3 w-3 mr-1" />,
+          text: "Tạm khóa",
+        };
+      case "pending":
+        return {
+          className: "bg-yellow-100 text-yellow-800",
+          icon: <ExclamationTriangleIcon className="h-3 w-3 mr-1" />,
+          text: "Chờ xác nhận",
+        };
+      default:
+        return {
+          className: "bg-gray-100 text-gray-800",
+          icon: <XCircleIcon className="h-3 w-3 mr-1" />,
+          text: status,
+        };
+    }
+  };
+
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -151,11 +209,23 @@ const UserManagement = () => {
     setSelectedUser(user);
     setShowUserModal(true);
   };
-
   const handleDeleteUser = (userId) => {
     if (confirm("Bạn có chắc chắn muốn xóa người dùng này?")) {
       console.log("Deleting user:", userId);
       // Implement delete logic
+    }
+  };
+
+  const handleToggleUserStatus = (user) => {
+    const newStatus = user.status === "active" ? "suspended" : "active";
+    const action = newStatus === "active" ? "kích hoạt" : "tạm khóa";
+
+    if (confirm(`Bạn có chắc chắn muốn ${action} người dùng ${user.name}?`)) {
+      console.log(
+        `Changing user ${user.id} status from ${user.status} to ${newStatus}`
+      );
+      // Implement status toggle logic
+      // Có thể dispatch action để update user status
     }
   };
 
@@ -249,18 +319,18 @@ const UserManagement = () => {
                       className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
-                </div>
-
+                </div>{" "}
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="all">All Status</option>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
+                  <option value="all">Tất cả trạng thái</option>
+                  <option value="active">Hoạt động</option>
+                  <option value="inactive">Không hoạt động</option>
+                  <option value="suspended">Tạm khóa</option>
+                  <option value="pending">Chờ xác nhận</option>
                 </select>
-
                 <select
                   value={roleFilter}
                   onChange={(e) => setRoleFilter(e.target.value)}
@@ -268,9 +338,65 @@ const UserManagement = () => {
                 >
                   <option value="all">All Roles</option>
                   <option value="Super Admin">Super Admin</option>
-                  <option value="Manager">Manager</option>
+                  <option value="Manager">Manager</option>{" "}
                   <option value="Staff">Staff</option>
                 </select>
+              </div>
+
+              {/* Status Summary */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="flex items-center">
+                    <CheckCircleIcon className="h-8 w-8 text-green-600" />
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-green-900">
+                        Hoạt động
+                      </p>
+                      <p className="text-2xl font-bold text-green-600">
+                        {users.filter((u) => u.status === "active").length}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-center">
+                    <XCircleIcon className="h-8 w-8 text-gray-600" />
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-gray-900">
+                        Không hoạt động
+                      </p>
+                      <p className="text-2xl font-bold text-gray-600">
+                        {users.filter((u) => u.status === "inactive").length}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <div className="flex items-center">
+                    <ExclamationTriangleIcon className="h-8 w-8 text-red-600" />
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-red-900">
+                        Tạm khóa
+                      </p>
+                      <p className="text-2xl font-bold text-red-600">
+                        {users.filter((u) => u.status === "suspended").length}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <div className="flex items-center">
+                    <ExclamationTriangleIcon className="h-8 w-8 text-yellow-600" />
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-yellow-900">
+                        Chờ xác nhận
+                      </p>
+                      <p className="text-2xl font-bold text-yellow-600">
+                        {users.filter((u) => u.status === "pending").length}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Users Table */}
@@ -325,22 +451,19 @@ const UserManagement = () => {
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                               {user.role}
                             </span>
-                          </td>
+                          </td>{" "}
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span
-                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                user.status === "active"
-                                  ? "bg-green-100 text-green-800"
-                                  : "bg-red-100 text-red-800"
-                              }`}
-                            >
-                              {user.status === "active" ? (
-                                <CheckCircleIcon className="h-3 w-3 mr-1" />
-                              ) : (
-                                <XCircleIcon className="h-3 w-3 mr-1" />
-                              )}
-                              {user.status}
-                            </span>
+                            {(() => {
+                              const statusStyle = getStatusStyle(user.status);
+                              return (
+                                <span
+                                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusStyle.className}`}
+                                >
+                                  {statusStyle.icon}
+                                  {statusStyle.text}
+                                </span>
+                              );
+                            })()}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {new Date(user.lastLogin).toLocaleDateString(
@@ -351,20 +474,39 @@ const UserManagement = () => {
                             {new Date(user.createdAt).toLocaleDateString(
                               "vi-VN"
                             )}
-                          </td>
+                          </td>{" "}
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div className="flex justify-end space-x-2">
                               <button
+                                onClick={() => handleToggleUserStatus(user)}
+                                className={`p-1 rounded ${
+                                  user.status === "active"
+                                    ? "text-yellow-600 hover:text-yellow-900"
+                                    : "text-green-600 hover:text-green-900"
+                                }`}
+                                title={
+                                  user.status === "active"
+                                    ? "Tạm khóa người dùng"
+                                    : "Kích hoạt người dùng"
+                                }
+                              >
+                                {user.status === "active" ? (
+                                  <ExclamationTriangleIcon className="h-4 w-4" />
+                                ) : (
+                                  <CheckCircleIcon className="h-4 w-4" />
+                                )}
+                              </button>
+                              <button
                                 onClick={() => handleEditUser(user)}
                                 className="text-blue-600 hover:text-blue-900 p-1"
-                                title="Edit user"
+                                title="Chỉnh sửa người dùng"
                               >
                                 <PencilIcon className="h-4 w-4" />
                               </button>
                               <button
                                 onClick={() => handleDeleteUser(user.id)}
                                 className="text-red-600 hover:text-red-900 p-1"
-                                title="Delete user"
+                                title="Xóa người dùng"
                               >
                                 <TrashIcon className="h-4 w-4" />
                               </button>
@@ -522,7 +664,7 @@ const UserManagement = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   defaultValue={selectedUser?.email || ""}
                 />
-              </div>
+              </div>{" "}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Role
@@ -531,6 +673,20 @@ const UserManagement = () => {
                   <option>Super Admin</option>
                   <option>Manager</option>
                   <option>Staff</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Trạng thái hoạt động
+                </label>
+                <select
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  defaultValue={selectedUser?.status || "active"}
+                >
+                  <option value="active">Hoạt động</option>
+                  <option value="inactive">Không hoạt động</option>
+                  <option value="suspended">Tạm khóa</option>
+                  <option value="pending">Chờ xác nhận</option>
                 </select>
               </div>
             </div>

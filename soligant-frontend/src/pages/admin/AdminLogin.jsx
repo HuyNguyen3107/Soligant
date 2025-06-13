@@ -1,15 +1,31 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "../../redux/features/authSlice";
 import { showSuccess, showError } from "../../utils/toast";
 import { motion } from "framer-motion";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
+
+  const { loading, isAuthenticated, error } = useSelector(
+    (state) => state.auth
+  );
+
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
-  const [loading, setLoading] = useState(false);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      const from = location.state?.from?.pathname || "/admin/dashboard";
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, location]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,41 +34,24 @@ const AdminLogin = () => {
       [name]: value,
     }));
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
 
     try {
-      // TODO: Thay thế bằng API thực khi có backend
-      // Mock login process
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Dispatch login action
+      const result = await dispatch(
+        login({
+          username: formData.username,
+          password: formData.password,
+        })
+      ).unwrap();
 
-      // Kiểm tra thông tin đăng nhập (tạm thời hardcode)
-      if (
-        formData.username === "admin" &&
-        formData.password === "Soligant@2023"
-      ) {
-        // Lưu thông tin đăng nhập vào localStorage
-        localStorage.setItem(
-          "adminAuth",
-          JSON.stringify({
-            isLoggedIn: true,
-            token: "mock-jwt-token",
-            username: formData.username,
-            role: "admin",
-          })
-        );
-        showSuccess("Đăng nhập thành công!");
-        navigate("/admin/dashboard");
-      } else {
-        showError("Thông tin đăng nhập không chính xác!");
-      }
+      // Success case sẽ được handle bởi useEffect above
+      const from = location.state?.from?.pathname || "/admin/dashboard";
+      navigate(from, { replace: true });
     } catch (error) {
-      console.error("Login error:", error);
-      showError("Có lỗi xảy ra khi đăng nhập!");
-    } finally {
-      setLoading(false);
+      // Error đã được handle trong Redux slice
+      console.error("Login failed:", error);
     }
   };
 

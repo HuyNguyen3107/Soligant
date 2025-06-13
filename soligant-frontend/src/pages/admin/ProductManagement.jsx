@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
+import AdminHeader from "../../components/admin/AdminHeader";
 
 // Mock data for products
 const mockProductsData = [
@@ -275,14 +276,6 @@ const formatStatus = (isActive) => {
 };
 
 const ProductManagement = () => {
-  // Auth check
-  useEffect(() => {
-    const adminAuth = localStorage.getItem("adminAuth");
-    if (!adminAuth) {
-      window.location.href = "/admin/login";
-    }
-  }, []);
-
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -384,13 +377,17 @@ const ProductManagement = () => {
       console.error("Error updating product status:", error);
     }
   };
-
   return (
     <div className="overflow-auto">
       <div className="container mx-auto py-8 px-4">
-        <h1 className="text-2xl font-semibold text-gray-800 mb-6">
-          Quản lý sản phẩm
-        </h1>
+        <AdminHeader title="Quản lý sản phẩm" showLogo={false}>
+          <Link
+            to="/admin/products/new"
+            className="bg-soligant-primary hover:bg-soligant-primary-dark text-white px-4 py-2 rounded-md font-medium transition-colors"
+          >
+            + Thêm sản phẩm mới
+          </Link>
+        </AdminHeader>
 
         {/* Filters */}
         <div className="bg-white p-4 rounded-lg shadow-sm mb-6">

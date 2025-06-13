@@ -20,6 +20,8 @@ import {
 } from "recharts";
 // import Sidebar from "../../components/admin/Sidebar"; // Removed redundant Sidebar import
 import NotificationSystem from "../../components/admin/NotificationSystem";
+import AdminHeader from "../../components/admin/AdminHeader";
+import useRealtimeNotifications from "../../hooks/useRealtimeNotifications";
 
 // Mock data for dashboard
 const mockOrdersData = [
@@ -119,13 +121,10 @@ const formatStatus = (status) => {
 };
 
 const AdminDashboard = () => {
-  // Auth check
-  useEffect(() => {
-    const adminAuth = localStorage.getItem("adminAuth");
-    if (!adminAuth) {
-      window.location.href = "/admin/login";
-    }
-  }, []);
+  // Hook for testing notifications
+  const { triggerTestOrderNotification, triggerTestGeneralNotification } =
+    useRealtimeNotifications();
+
   // State for dashboard data
   const [dashboardData, setDashboardData] = useState({
     totalOrders: 0,
@@ -229,77 +228,42 @@ const AdminDashboard = () => {
     ];
     return names[Math.floor(Math.random() * names.length)];
   };
-
   return (
     <>
       {/* The main content area of the dashboard. Sidebar and outer layout div removed. */}
       <div className="flex-1">
         {" "}
         {/* Removed overflow-y-auto as AdminLayout handles scrolling */}
-        {/* Removed {" "} that was here */}
-        <header className="bg-white shadow-sm">
-          <div className="max-w-7xl mx-auto py-4 px-6 flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 font-utm-avo">
-                Dashboard
-              </h1>
-              <div className="flex items-center mt-1 text-sm text-gray-500">
-                <div className="flex items-center mr-4">
-                  <div
-                    className={`w-2 h-2 rounded-full mr-2 ${
-                      isLive ? "bg-green-500 animate-pulse" : "bg-gray-400"
-                    }`}
-                  ></div>
-                  <span>
-                    {isLive ? "Cập nhật thời gian thực" : "Tạm dừng cập nhật"}
-                  </span>
-                </div>
-                <span>
-                  Cập nhật lần cuối: {lastUpdate.toLocaleTimeString("vi-VN")}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => setIsLive(!isLive)}
-                className={`px-3 py-1 rounded text-sm font-medium ${
-                  isLive
-                    ? "bg-green-100 text-green-800 hover:bg-green-200"
-                    : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+        {/* AdminHeader with logo and controls */}
+        <AdminHeader title="Dashboard" showLogo={false}>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center text-sm text-gray-500">
+              <div
+                className={`w-2 h-2 rounded-full mr-2 ${
+                  isLive ? "bg-green-500 animate-pulse" : "bg-gray-400"
                 }`}
-              >
-                {isLive ? "Tạm dừng" : "Bật"} cập nhật
-              </button>
-
-              {/* Notifications Dropdown */}
-              <div className="relative">
-                <button className="p-2 text-gray-600 hover:text-gray-900 relative">
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                    />
-                  </svg>
-                  {notifications.length > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                      {notifications.length}
-                    </span>
-                  )}
-                </button>
-              </div>
+              ></div>
+              <span>
+                {isLive ? "Cập nhật thời gian thực" : "Tạm dừng cập nhật"}
+              </span>
             </div>
+            <span className="text-sm text-gray-500">
+              Cập nhật lần cuối: {lastUpdate.toLocaleTimeString()}
+            </span>
+            <button
+              onClick={() => setIsLive(!isLive)}
+              className={`px-3 py-1 text-sm rounded-md font-medium transition-colors ${
+                isLive
+                  ? "bg-red-100 text-red-700 hover:bg-red-200"
+                  : "bg-green-100 text-green-700 hover:bg-green-200"
+              }`}
+            >
+              {isLive ? "Tạm dừng" : "Tiếp tục"}
+            </button>
           </div>
-        </header>
-        {/* Removed {" "} that was here */}
-        <main className="max-w-7xl mx-auto py-6 px-6">
+        </AdminHeader>
+        <main className="py-6">
+          {/* Removed max-w-7xl mx-auto px-6 for better spacing */}
           {/* Dashboard Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <motion.div
@@ -928,10 +892,44 @@ const AdminDashboard = () => {
                     d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
                   />
                 </svg>
-                Xem báo cáo
+                Xem báo cáo{" "}
               </Link>
-            </div>{" "}
+            </div>
           </motion.div>
+          {/* Dev Panel for Testing Notifications (only show in development) */}
+          {process.env.NODE_ENV === "development" && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.8 }}
+              className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-6"
+            >
+              <h3 className="text-lg font-medium text-yellow-800 mb-3">
+                🧪 Dev Panel - Test Notifications
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={triggerTestOrderNotification}
+                  className="px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors"
+                >
+                  🛒 Test Đơn Hàng Mới
+                </button>
+                <button
+                  onClick={triggerTestGeneralNotification}
+                  className="px-3 py-2 bg-green-500 text-white rounded text-sm hover:bg-green-600 transition-colors"
+                >
+                  📢 Test Thông Báo Khác
+                </button>
+              </div>
+              <p className="text-sm text-yellow-700 mt-2">
+                💡 <strong>Test đơn hàng mới:</strong> Sẽ tạo notification với
+                thông tin khách hàng chi tiết, tin nhắn mẫu có thể copy/edit.
+                <br />
+                📞 Bao gồm: Tên, SĐT (có nút copy riêng), email, thông tin đơn
+                hàng và tin nhắn liên hệ hoàn chỉnh.
+              </p>
+            </motion.div>
+          )}
         </main>
       </div>
       <NotificationSystem />

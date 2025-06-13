@@ -133,14 +133,6 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const isNew = productId === "new";
 
-  // Auth check
-  useEffect(() => {
-    const adminAuth = localStorage.getItem("adminAuth");
-    if (!adminAuth) {
-      window.location.href = "/admin/login";
-    }
-  }, []);
-
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editMode, setEditMode] = useState(isNew);

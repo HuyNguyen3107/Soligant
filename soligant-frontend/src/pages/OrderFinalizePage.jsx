@@ -6,6 +6,8 @@ import { toast } from "react-toastify";
 import Button from "../components/ui/Button";
 import FormInput from "../components/ui/FormInput";
 import Loading from "../components/ui/Loading";
+import ProtectedButton from "../components/ui/ProtectedButton";
+import { useFormSubmissionProtection } from "../hooks/useRaceConditionProtection";
 import {
   getOrderFromGoogleSheets,
   updateOrderStatusInGoogleSheets,
@@ -14,6 +16,12 @@ import {
 const OrderFinalizePage = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
+
+  // Race condition protection for form submission
+  const formProtection = useFormSubmissionProtection({
+    userId: `order_${orderId}`, // Use order ID as unique identifier
+  });
+
   const [loading, setLoading] = useState(true);
   const [orderData, setOrderData] = useState(null);
   const [error, setError] = useState(null);
@@ -74,8 +82,7 @@ const OrderFinalizePage = () => {
       [name]: value,
     }));
   };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = formProtection.protectOrderFinalize(async (e) => {
     e.preventDefault();
 
     // Validation
@@ -86,6 +93,13 @@ const OrderFinalizePage = () => {
 
     setSubmitting(true);
     try {
+      // Save current state để prevent duplicate submissions
+      formProtection.saveOperationState("finalize", {
+        orderId,
+        formData,
+        timestamp: Date.now(),
+      });
+
       // Simulate moving order to PostgreSQL and updating status
       await updateOrderStatusInGoogleSheets(orderId, "Chờ xác nhận");
 
@@ -95,7 +109,11 @@ const OrderFinalizePage = () => {
         ...formData,
         finalizedAt: new Date().toISOString(),
       });
+
       toast.success("Đã chốt đơn thành công! Đơn hàng đang chờ xác nhận.");
+
+      // Clear saved state sau khi thành công
+      formProtection.saveOperationState("finalize", null);
 
       // Show success modal instead of navigating
       setShowSuccessModal(true);
@@ -105,7 +123,7 @@ const OrderFinalizePage = () => {
     } finally {
       setSubmitting(false);
     }
-  };
+  });
 
   if (loading) {
     return (
@@ -220,7 +238,6 @@ const OrderFinalizePage = () => {
                     required
                   />
                 </div>
-
                 {/* Delivery Options */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -248,7 +265,6 @@ const OrderFinalizePage = () => {
                     min={new Date().toISOString().split("T")[0]}
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Người trả phí ship
@@ -278,7 +294,6 @@ const OrderFinalizePage = () => {
                     </label>
                   </div>
                 </div>
-
                 {/* Additional Information */}
                 <FormInput
                   label="Thông tin thú cưng (nếu có)"
@@ -289,7 +304,6 @@ const OrderFinalizePage = () => {
                   isTextarea
                   rows={2}
                 />
-
                 <FormInput
                   label="Nội dung thiệp"
                   name="cardMessage"
@@ -300,7 +314,6 @@ const OrderFinalizePage = () => {
                   isTextarea
                   rows={3}
                 />
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -327,7 +340,6 @@ const OrderFinalizePage = () => {
                     placeholder="Nhập link QR code"
                   />
                 </div>
-
                 <FormInput
                   label="Ghi chú hoặc lưu ý đặc biệt"
                   name="specialNotes"
@@ -337,8 +349,7 @@ const OrderFinalizePage = () => {
                   isTextarea
                   rows={3}
                 />
-
-                {/* Submit Button */}
+                {/* Submit Button */}{" "}
                 <div className="flex justify-center space-x-4 pt-6">
                   <Button
                     variant="outline"
@@ -347,14 +358,18 @@ const OrderFinalizePage = () => {
                   >
                     Hủy
                   </Button>
-                  <Button
+                  <ProtectedButton
                     variant="primary"
                     type="submit"
-                    disabled={submitting}
+                    disabled={
+                      submitting || formProtection.isOperationLocked("finalize")
+                    }
+                    loading={submitting}
                     className="px-8"
+                    clickDelay={2000} // Prevent double submit for 2 seconds
                   >
-                    {submitting ? <Loading size="small" /> : "Chốt đơn"}
-                  </Button>
+                    Chốt đơn
+                  </ProtectedButton>
                 </div>
               </form>
             </motion.div>{" "}

@@ -100,14 +100,6 @@ const OrderDetail = () => {
   const [editMode, setEditMode] = useState(false);
   const [editedOrder, setEditedOrder] = useState(null);
 
-  // Auth check
-  useEffect(() => {
-    const adminAuth = localStorage.getItem("adminAuth");
-    if (!adminAuth) {
-      window.location.href = "/admin/login";
-    }
-  }, []);
-
   // Load order data
   useEffect(() => {
     const loadOrderData = async () => {

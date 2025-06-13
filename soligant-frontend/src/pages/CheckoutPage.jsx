@@ -9,6 +9,10 @@ import { toast } from "react-toastify";
 import Button from "../components/ui/Button";
 import FormInput from "../components/ui/FormInput";
 import Loading from "../components/ui/Loading";
+import ProtectedButton from "../components/ui/ProtectedButton";
+
+// Race condition protection
+import { useFormSubmissionProtection } from "../hooks/useRaceConditionProtection";
 
 // Mock service
 import { createOrderInGoogleSheets } from "../services/mockGoogleSheets";
@@ -17,6 +21,12 @@ const CheckoutPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const customization = useSelector((state) => state.customization);
+
+  // Race condition protection for checkout
+  const formProtection = useFormSubmissionProtection({
+    userId: `checkout_${Date.now()}`, // Generate unique ID for this checkout session
+  });
+
   // Form state
   const [formData, setFormData] = useState({
     customerName: "",
@@ -64,9 +74,8 @@ const CheckoutPage = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
-  // Handle form submission
-  const handleSubmit = async (e) => {
+  // Handle form submission với race condition protection
+  const handleSubmit = formProtection.protectCheckout(async (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -77,6 +86,13 @@ const CheckoutPage = () => {
     setLoading(true);
 
     try {
+      // Save checkout state để prevent duplicate submissions
+      formProtection.saveOperationState("checkout", {
+        formData,
+        customization,
+        timestamp: Date.now(),
+      });
+
       // Prepare order data
       const orderData = {
         // Customer info
@@ -89,10 +105,11 @@ const CheckoutPage = () => {
         status: "waiting_demo", // Chờ demo
         isUrgent: formData.isUrgent,
         createdAt: new Date().toISOString(),
-      };
-
-      // Mock save to Google Sheets
+      }; // Mock save to Google Sheets
       const result = await createOrderInGoogleSheets(orderData);
+
+      // Clear saved state sau khi thành công
+      formProtection.saveOperationState("checkout", null);
 
       // Show success
       toast.success(
@@ -107,7 +124,9 @@ const CheckoutPage = () => {
     } finally {
       setLoading(false);
     }
-  }; // Calculate total price from customization
+  });
+
+  // Calculate total price from customization
   const calculateTotalPrice = () => {
     // Sử dụng giá đã tính sẵn từ redux state
     if (customization.totalPrice !== undefined) {
@@ -595,24 +614,21 @@ const CheckoutPage = () => {
                   <li>• Thanh toán 100% sau khi bạn chốt demo</li>
                   <li>• Thời gian làm đơn: 3-5 ngày kể từ khi thanh toán</li>
                 </ul>
-              </div>
+              </div>{" "}
               {/* Submit button */}
               <div className="flex flex-col space-y-4 mt-8">
-                <Button
+                <ProtectedButton
                   type="submit"
                   variant="primary"
                   className="w-full py-4 text-lg"
-                  disabled={loading}
+                  disabled={
+                    loading || formProtection.isOperationLocked("checkout")
+                  }
+                  loading={loading}
+                  clickDelay={3000} // Prevent double submit for 3 seconds
                 >
-                  {loading ? (
-                    <div className="flex items-center justify-center space-x-2">
-                      <Loading size="small" color="white" />
-                      <span>Đang gửi đơn hàng...</span>
-                    </div>
-                  ) : (
-                    "Gửi Đơn Hàng"
-                  )}
-                </Button>
+                  Gửi Đơn Hàng
+                </ProtectedButton>
 
                 <Button
                   type="button"
