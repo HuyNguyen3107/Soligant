@@ -46,12 +46,9 @@ exports.getUsers = async (req, res, next) => {
 
     // Thực hiện truy vấn
     const { count, rows } = await User.findAndCountAll(query);
-
     return res.json({
-      total: count,
-      totalPages: Math.ceil(count / limit),
-      currentPage: parseInt(page),
-      users: rows.map((user) => ({
+      success: true,
+      data: rows.map((user) => ({
         id: user.id,
         email: user.email,
         full_name: user.full_name,
@@ -60,6 +57,12 @@ exports.getUsers = async (req, res, next) => {
         roles: user.roles.map((role) => role.name),
         created_at: user.created_at,
       })),
+      meta: {
+        total: count,
+        totalPages: Math.ceil(count / limit),
+        currentPage: parseInt(page),
+        limit: parseInt(limit),
+      },
     });
   } catch (error) {
     next(error);
@@ -127,10 +130,10 @@ exports.createUser = async (req, res, next) => {
       resource_id: user.id,
       created_at: new Date(),
     });
-
     return res.status(201).json({
+      success: true,
       message: "Tạo nhân viên thành công",
-      user: {
+      data: {
         id: userWithRoles.id,
         email: userWithRoles.email,
         full_name: userWithRoles.full_name,
@@ -280,6 +283,141 @@ exports.getUserById = async (req, res, next) => {
         created_at: user.created_at,
         updated_at: user.updated_at,
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Xóa nhân viên
+ */
+exports.deleteUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Tìm user cần xóa
+    const user = await User.findByPk(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy nhân viên",
+      });
+    }
+
+    // Không cho phép xóa chính mình
+    if (user.id === req.user.id) {
+      return res.status(400).json({
+        success: false,
+        message: "Không thể xóa tài khoản của chính mình",
+      });
+    }
+
+    // Xóa các liên kết với roles trước
+    await UserRole.destroy({ where: { user_id: id } });
+
+    // Xóa user
+    await user.destroy();
+
+    // Ghi log
+    await AuditLog.create({
+      user_id: req.user.id,
+      action: "delete_user",
+      resource_type: "users",
+      resource_id: id,
+      created_at: new Date(),
+    });
+
+    return res.json({
+      success: true,
+      message: "Xóa nhân viên thành công",
+      data: {
+        id: user.id,
+        email: user.email,
+        full_name: user.full_name,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Đổi mật khẩu cá nhân (user tự đổi)
+ */
+exports.changeMyPassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user.id;
+
+    // Validate input
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Vui lòng nhập đầy đủ mật khẩu hiện tại và mật khẩu mới",
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Mật khẩu mới phải có ít nhất 6 ký tự",
+      });
+    }
+
+    // Tìm user hiện tại
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy thông tin người dùng",
+      });
+    }
+
+    // Kiểm tra mật khẩu hiện tại
+    const isCurrentPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password_hash
+    );
+
+    if (!isCurrentPasswordValid) {
+      return res.status(400).json({
+        success: false,
+        message: "Mật khẩu hiện tại không đúng",
+      });
+    }
+
+    // Kiểm tra mật khẩu mới không trùng với mật khẩu cũ
+    const isSamePassword = await bcrypt.compare(
+      newPassword,
+      user.password_hash
+    );
+    if (isSamePassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Mật khẩu mới phải khác với mật khẩu hiện tại",
+      });
+    }
+
+    // Hash mật khẩu mới
+    const saltRounds = 10;
+    const password_hash = await bcrypt.hash(newPassword, saltRounds);
+
+    // Cập nhật mật khẩu
+    await user.update({ password_hash });
+
+    // Ghi log
+    await AuditLog.create({
+      user_id: userId,
+      action: "change_my_password",
+      resource_type: "users",
+      resource_id: userId,
+      created_at: new Date(),
+    });
+
+    return res.json({
+      success: true,
+      message: "Đổi mật khẩu thành công",
     });
   } catch (error) {
     next(error);

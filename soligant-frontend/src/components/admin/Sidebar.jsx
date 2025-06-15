@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { logout } from "../../redux/features/authSlice";
+import { logout, selectCurrentUser } from "../../redux/features/authSlice";
 import { selectMyAssignedOrders } from "../../redux/features/orderManagementSlice";
 import Logo from "../ui/Logo";
 import NotificationBadge from "../ui/NotificationBadge";
@@ -11,6 +11,7 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const myOrders = useSelector(selectMyAssignedOrders);
+  const currentUser = useSelector(selectCurrentUser);
   const currentPath = location.pathname;
 
   // Debug log
@@ -132,6 +133,25 @@ const Sidebar = () => {
       ),
     },
     {
+      title: "Danh mục",
+      path: "/admin/categories",
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+          <path
+            fillRule="evenodd"
+            d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
+            clipRule="evenodd"
+          />
+        </svg>
+      ),
+    },
+    {
       title: "Background",
       path: "/admin/backgrounds",
       icon: (
@@ -182,6 +202,24 @@ const Sidebar = () => {
       ),
     },
     {
+      title: "Vai trò",
+      path: "/admin/roles",
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fillRule="evenodd"
+            d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+            clipRule="evenodd"
+          />
+        </svg>
+      ),
+    },
+    {
       title: "Hiệu suất nhân viên",
       path: "/admin/performance",
       icon: (
@@ -207,6 +245,24 @@ const Sidebar = () => {
         >
           <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
           <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707L16 7.586A1 1 0 0015.414 7H14z" />
+        </svg>
+      ),
+    },
+    {
+      title: "Đổi mật khẩu",
+      path: "/admin/change-password",
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fillRule="evenodd"
+            d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+            clipRule="evenodd"
+          />
         </svg>
       ),
     },
@@ -269,9 +325,25 @@ const Sidebar = () => {
               </Link>
             </li>
           ))}
-        </ul>
+        </ul>{" "}
       </div>{" "}
       <div className="p-4 border-t border-soligant-primary-light">
+        {/* User info */}
+        {currentUser && (
+          <div className="mb-4 pb-4 border-b border-soligant-primary-light">
+            <div className="text-white text-sm">
+              <div className="font-medium">
+                {currentUser.full_name || currentUser.email}
+              </div>
+              <div className="text-xs text-gray-300">{currentUser.email}</div>
+              {currentUser.roles && currentUser.roles.length > 0 && (
+                <div className="text-xs text-gray-300 mt-1">
+                  {currentUser.roles.join(", ")}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         <button
           onClick={handleLogout}
           className="flex items-center space-x-2 text-sm hover:text-gray-200 transition duration-150"

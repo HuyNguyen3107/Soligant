@@ -25,12 +25,15 @@ import MyOrderManagement from "../pages/admin/MyOrderManagement";
 import ProductManagement from "../pages/admin/ProductManagement";
 import ProductDetail from "../pages/admin/ProductDetail";
 import CollectionManagement from "../pages/admin/CollectionManagement";
+import CategoryManagement from "../pages/admin/CategoryManagement";
 import BackgroundManagement from "../pages/admin/BackgroundManagement";
 import InventoryManagement from "../pages/admin/InventoryManagement";
 import EmployeePerformance from "../pages/admin/EmployeePerformance";
 import ShippingManagement from "../pages/admin/ShippingManagement";
 import ReportsAnalytics from "../pages/admin/ReportsAnalytics";
 import UserManagement from "../pages/admin/UserManagement";
+import RoleManagement from "../pages/admin/RoleManagement";
+import ChangePassword from "../pages/admin/ChangePassword";
 import Settings from "../pages/admin/Settings";
 
 const AppRoutes = () => {
@@ -69,15 +72,18 @@ const AppRoutes = () => {
         <Route path="orders" element={<OrderManagement />} />
         <Route path="orders/:orderId" element={<OrderDetail />} />{" "}
         <Route path="my-orders" element={<MyOrderManagement />} />
-        <Route path="products" element={<ProductManagement />} />
+        <Route path="products" element={<ProductManagement />} />{" "}
         <Route path="products/:productId" element={<ProductDetail />} />{" "}
         <Route path="collections" element={<CollectionManagement />} />
+        <Route path="categories" element={<CategoryManagement />} />
         <Route path="backgrounds" element={<BackgroundManagement />} />{" "}
         <Route path="inventory" element={<InventoryManagement />} />
         <Route path="performance" element={<EmployeePerformance />} />
         <Route path="shipping" element={<ShippingManagement />} />
-        <Route path="reports" element={<ReportsAnalytics />} />
+        <Route path="reports" element={<ReportsAnalytics />} />{" "}
         <Route path="users" element={<UserManagement />} />
+        <Route path="roles" element={<RoleManagement />} />
+        <Route path="change-password" element={<ChangePassword />} />
         <Route path="settings" element={<Settings />} />
       </Route>
       {/* Route không tìm thấy */}

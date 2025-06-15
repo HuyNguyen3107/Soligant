@@ -4,12 +4,13 @@ import {
   getSessionToken,
   getRefreshToken,
   setSessionToken,
+  setRefreshToken,
   removeTokens,
 } from "../utils/auth";
 
 // Tạo instance axios
 const axiosClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000/api",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -25,12 +26,16 @@ axiosClient.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    return Promise.reject(error);
+  }
 );
 
 // Interceptor cho response
 axiosClient.interceptors.response.use(
-  (response) => response.data,
+  (response) => {
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
 
@@ -50,11 +55,12 @@ axiosClient.interceptors.response.use(
             { refreshToken }
           );
 
-          const { accessToken } = response.data;
-          setSessionToken(accessToken);
+          const { tokens } = response.data;
+          setSessionToken(tokens.accessToken);
+          setRefreshToken(tokens.refreshToken);
 
           // Cập nhật Authorization header và thực hiện lại request
-          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+          originalRequest.headers.Authorization = `Bearer ${tokens.accessToken}`;
           return axios(originalRequest);
         }
       } catch (refreshError) {
@@ -71,7 +77,8 @@ axiosClient.interceptors.response.use(
     // Xử lý các lỗi chung
     const message = error.response?.data?.message || "Đã có lỗi xảy ra";
 
-    if (!originalRequest?.disableToast) {
+    // Chỉ hiển thị toast error nếu không phải lỗi auth và không bị disable
+    if (!originalRequest?.disableToast && error.response?.status !== 401) {
       toast.error(message);
     }
 

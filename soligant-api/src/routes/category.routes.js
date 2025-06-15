@@ -26,7 +26,7 @@ router.put(
 router.delete(
   "/:id",
   authenticateJWT,
-  checkPermission("categories.update"),
+  checkPermission("categories.delete"),
   categoryController.deleteCategory
 );
 

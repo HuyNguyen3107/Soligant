@@ -20,6 +20,8 @@ const { getCurrentUTCDateTime } = require("./utils/date.util");
 // Import routes
 const authRoutes = require("./routes/auth.routes");
 const userRoutes = require("./routes/user.routes");
+const roleRoutes = require("./routes/role.routes");
+const permissionRoutes = require("./routes/permission.routes");
 const categoryRoutes = require("./routes/category.routes");
 const collectionRoutes = require("./routes/collection.routes");
 const productRoutes = require("./routes/product.routes");
@@ -44,13 +46,12 @@ app.get("/", (req, res) => {
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/roles", roleRoutes);
+app.use("/api/permissions", permissionRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/collections", collectionRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
-app.use("/api/inventory", inventoryRoutes);
-app.use("/api/shipping", shippingRoutes);
-app.use("/api/statistics", statisticsRoutes);
 
 // Xử lý lỗi 404
 app.use((req, res) => {

@@ -23,12 +23,22 @@ export const setRefreshToken = (token) => {
 
 // Lấy token
 export const getSessionToken = () => {
-  return Cookies.get("session_token");
+  const token = Cookies.get("session_token");
+  console.log("🔍 getSessionToken:", {
+    token: token ? `${token.substring(0, 20)}...` : null,
+    allCookies: document.cookie,
+  });
+  return token;
 };
 
 // Lấy refresh token
 export const getRefreshToken = () => {
-  return Cookies.get("refresh_token");
+  const token = Cookies.get("refresh_token");
+  console.log("🔍 getRefreshToken:", {
+    token: token ? `${token.substring(0, 20)}...` : null,
+    allCookies: document.cookie,
+  });
+  return token;
 };
 
 // Xóa tokens khi logout

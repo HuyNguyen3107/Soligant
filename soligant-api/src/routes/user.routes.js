@@ -9,6 +9,9 @@ const {
 // Tất cả routes đều yêu cầu xác thực
 router.use(authenticateJWT);
 
+// Đổi mật khẩu cá nhân (không cần quyền đặc biệt) - PHẢI đặt trước tất cả routes có :id
+router.put("/change-my-password", userController.changeMyPassword);
+
 // Lấy danh sách nhân viên
 router.get("/", checkPermission("users.view"), userController.getUsers);
 
@@ -21,11 +24,18 @@ router.post("/", checkPermission("users.create"), userController.createUser);
 // Cập nhật thông tin nhân viên
 router.put("/:id", checkPermission("users.update"), userController.updateUser);
 
-// Đổi mật khẩu nhân viên
+// Đổi mật khẩu cho user khác (cần quyền admin)
 router.put(
   "/:id/change-password",
   checkPermission("users.update"),
   userController.changePassword
+);
+
+// Xóa nhân viên
+router.delete(
+  "/:id",
+  checkPermission("users.delete"),
+  userController.deleteUser
 );
 
 module.exports = router;

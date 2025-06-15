@@ -1,7 +1,7 @@
 // src/components/auth/AuthInitializer.jsx
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { checkAuth } from "../../redux/features/authSlice";
+import { initializeAuth } from "../../redux/features/authSlice";
 
 /**
  * Component để initialize auth check khi app khởi động
@@ -16,7 +16,7 @@ const AuthInitializer = ({ children }) => {
   useEffect(() => {
     // Chỉ check auth một lần khi app khởi động
     if (!authChecked) {
-      dispatch(checkAuth());
+      dispatch(initializeAuth());
     }
   }, [dispatch, authChecked]);
 

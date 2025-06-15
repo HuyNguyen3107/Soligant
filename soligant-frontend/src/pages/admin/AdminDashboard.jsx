@@ -21,6 +21,9 @@ import {
 // import Sidebar from "../../components/admin/Sidebar"; // Removed redundant Sidebar import
 import NotificationSystem from "../../components/admin/NotificationSystem";
 import AdminHeader from "../../components/admin/AdminHeader";
+import AuthDebug from "../../components/admin/AuthDebug";
+import AuthDebugAdvanced from "../../components/admin/AuthDebugAdvanced";
+import UserManagementTest from "../../components/admin/UserManagementTest";
 import useRealtimeNotifications from "../../hooks/useRealtimeNotifications";
 
 // Mock data for dashboard
@@ -930,9 +933,39 @@ const AdminDashboard = () => {
                   <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707L16 7.586A1 1 0 0015.414 7H14z" />
                 </svg>
                 Quản lý vận chuyển
-              </Link>
+              </Link>{" "}
             </div>
-          </motion.div>
+          </motion.div>{" "}
+          {/* Auth Debug Panel - Only show in development */}
+          {import.meta.env.DEV && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-8"
+            >
+              <AuthDebugAdvanced />
+            </motion.div>
+          )}
+          {/* Original Auth Debug Panel */}
+          {import.meta.env.DEV && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-8"
+            >
+              <AuthDebug />
+            </motion.div>
+          )}
+          {/* User Management Test Panel - Only show in development */}
+          {import.meta.env.DEV && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-8"
+            >
+              <UserManagementTest />
+            </motion.div>
+          )}
         </main>
       </div>
       <NotificationSystem />
