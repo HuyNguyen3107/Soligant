@@ -64,12 +64,18 @@ const Header = () => {
             className="hover:text-soligant-secondary transition-colors"
           >
             Bộ sưu tập
-          </Link>
+          </Link>{" "}
           <Link
             to="/order-search"
             className="hover:text-soligant-secondary transition-colors"
           >
             Tìm đơn hàng
+          </Link>
+          <Link
+            to="/tracking"
+            className="hover:text-soligant-secondary transition-colors"
+          >
+            Tra cứu vận chuyển
           </Link>
           {/* Auth Section */}
           {isAuthenticated ? (
@@ -160,7 +166,7 @@ const Header = () => {
               onClick={() => setMobileMenuOpen(false)}
             >
               Bộ sưu tập
-            </Link>
+            </Link>{" "}
             <Link
               to="/order-search"
               className="hover:text-soligant-secondary transition-colors"
@@ -168,7 +174,13 @@ const Header = () => {
             >
               Tìm đơn hàng
             </Link>
-
+            <Link
+              to="/tracking"
+              className="hover:text-soligant-secondary transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Tra cứu vận chuyển
+            </Link>
             {/* Auth Section Mobile */}
             {isAuthenticated ? (
               <div className="border-t border-soligant-primary-light pt-4 mt-4">

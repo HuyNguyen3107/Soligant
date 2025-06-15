@@ -121,9 +121,8 @@ const formatStatus = (status) => {
 };
 
 const AdminDashboard = () => {
-  // Hook for testing notifications
-  const { triggerTestOrderNotification, triggerTestGeneralNotification } =
-    useRealtimeNotifications();
+  // Hook for realtime notifications
+  useRealtimeNotifications();
 
   // State for dashboard data
   const [dashboardData, setDashboardData] = useState({
@@ -831,7 +830,6 @@ const AdminDashboard = () => {
                 </svg>
                 Thêm sản phẩm mới
               </Link>
-
               <Link
                 to="/admin/orders"
                 className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-soligant-primary hover:text-white transition duration-150"
@@ -852,7 +850,6 @@ const AdminDashboard = () => {
                 </svg>
                 Quản lý đơn hàng
               </Link>
-
               <Link
                 to="/admin/inventory"
                 className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-soligant-primary hover:text-white transition duration-150"
@@ -872,8 +869,7 @@ const AdminDashboard = () => {
                   />
                 </svg>
                 Quản lý kho hàng
-              </Link>
-
+              </Link>{" "}
               <Link
                 to="/admin/reports"
                 className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-soligant-primary hover:text-white transition duration-150"
@@ -894,42 +890,49 @@ const AdminDashboard = () => {
                 </svg>
                 Xem báo cáo{" "}
               </Link>
+              <Link
+                to="/admin/performance"
+                className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-soligant-primary hover:text-white transition duration-150"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"
+                  />
+                </svg>{" "}
+                Hiệu suất nhân viên
+              </Link>
+              <Link
+                to="/admin/shipping"
+                className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-soligant-primary hover:text-white transition duration-150"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"
+                  />
+                  <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707L16 7.586A1 1 0 0015.414 7H14z" />
+                </svg>
+                Quản lý vận chuyển
+              </Link>
             </div>
           </motion.div>
-          {/* Dev Panel for Testing Notifications (only show in development) */}
-          {process.env.NODE_ENV === "development" && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.8 }}
-              className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-6"
-            >
-              <h3 className="text-lg font-medium text-yellow-800 mb-3">
-                🧪 Dev Panel - Test Notifications
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={triggerTestOrderNotification}
-                  className="px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors"
-                >
-                  🛒 Test Đơn Hàng Mới
-                </button>
-                <button
-                  onClick={triggerTestGeneralNotification}
-                  className="px-3 py-2 bg-green-500 text-white rounded text-sm hover:bg-green-600 transition-colors"
-                >
-                  📢 Test Thông Báo Khác
-                </button>
-              </div>
-              <p className="text-sm text-yellow-700 mt-2">
-                💡 <strong>Test đơn hàng mới:</strong> Sẽ tạo notification với
-                thông tin khách hàng chi tiết, tin nhắn mẫu có thể copy/edit.
-                <br />
-                📞 Bao gồm: Tên, SĐT (có nút copy riêng), email, thông tin đơn
-                hàng và tin nhắn liên hệ hoàn chỉnh.
-              </p>
-            </motion.div>
-          )}
         </main>
       </div>
       <NotificationSystem />

@@ -135,11 +135,11 @@ const InventoryManagement = () => {
   const [filters, setFilters] = useState({
     status: "all",
     search: "",
-    location: "all",
     supplier: "all",
   });
   const [selectedItem, setSelectedItem] = useState(null);
   const [showStockModal, setShowStockModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const [stockAdjustment, setStockAdjustment] = useState({
     type: "in",
     quantity: "",
@@ -169,12 +169,6 @@ const InventoryManagement = () => {
               item.productName.toLowerCase().includes(searchLower) ||
               item.variantName.toLowerCase().includes(searchLower) ||
               item.id.toLowerCase().includes(searchLower)
-          );
-        }
-
-        if (filters.location !== "all") {
-          filteredItems = filteredItems.filter((item) =>
-            item.location.includes(filters.location)
           );
         }
 
@@ -529,24 +523,6 @@ const InventoryManagement = () => {
                         className="border border-gray-300 rounded-md px-3 py-2 text-sm w-64"
                       />
                     </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Vị trí
-                      </label>
-                      <select
-                        name="location"
-                        value={filters.location}
-                        onChange={handleFilterChange}
-                        className="border border-gray-300 rounded-md px-3 py-2 text-sm"
-                      >
-                        <option value="all">Tất cả</option>
-                        <option value="Kho A">Kho A</option>
-                        <option value="Kho B">Kho B</option>
-                        <option value="Kho C">Kho C</option>
-                        <option value="Kho D">Kho D</option>
-                      </select>
-                    </div>
                   </div>
 
                   {/* Inventory Table */}
@@ -564,12 +540,9 @@ const InventoryManagement = () => {
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                               Tồn kho
-                            </th>
+                            </th>{" "}
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                               Trạng thái
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Vị trí
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                               Giá trị
@@ -629,10 +602,7 @@ const InventoryManagement = () => {
                                     <div className="text-xs text-red-600 mt-1">
                                       Dưới mức tối thiểu ({item.minStockLevel})
                                     </div>
-                                  )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                  {item.location}
+                                  )}{" "}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                   <div>
@@ -668,8 +638,14 @@ const InventoryManagement = () => {
                                     className="text-indigo-600 hover:text-indigo-900 mr-3"
                                   >
                                     Điều chỉnh
-                                  </button>
-                                  <button className="text-blue-600 hover:text-blue-900">
+                                  </button>{" "}
+                                  <button
+                                    onClick={() => {
+                                      setSelectedItem(item);
+                                      setShowDetailModal(true);
+                                    }}
+                                    className="text-blue-600 hover:text-blue-900"
+                                  >
                                     Chi tiết
                                   </button>
                                 </td>
@@ -814,12 +790,11 @@ const InventoryManagement = () => {
                                   <strong>
                                     {item.productName} - {item.variantName}
                                   </strong>
-                                </p>
+                                </p>{" "}
                                 <p>
                                   Tồn kho hiện tại: {item.currentStock} (Mức tối
                                   thiểu: {item.minStockLevel})
                                 </p>
-                                <p>Vị trí: {item.location}</p>
                               </div>
                               <div className="mt-4">
                                 <button
@@ -847,20 +822,19 @@ const InventoryManagement = () => {
           </div>
         </main>
       </div>
-
-      {/* Stock Adjustment Modal */}
+      {/* Stock Adjustment Modal */}{" "}
       {showStockModal && selectedItem && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
+        <div className="fixed inset-0 z-[60] overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            {" "}
             <div
-              className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+              className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity z-10"
               onClick={() => setShowStockModal(false)}
             />
-
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+              className="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full z-20"
             >
               <div className="bg-white px-6 py-4">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
@@ -1007,6 +981,192 @@ const InventoryManagement = () => {
                 >
                   Xác nhận
                 </button>
+              </div>
+            </motion.div>
+          </div>{" "}
+        </div>
+      )}
+      {/* Detail Modal */}{" "}
+      {showDetailModal && selectedItem && (
+        <div className="fixed inset-0 z-[60] overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            {" "}
+            <div
+              className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity z-10"
+              onClick={() => setShowDetailModal(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full z-20"
+            >
+              <div className="bg-white px-6 py-4">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-medium text-gray-900">
+                    Chi tiết sản phẩm - {selectedItem.productName}
+                  </h3>
+                  <button
+                    onClick={() => setShowDetailModal(false)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Mã sản phẩm
+                      </label>
+                      <p className="text-sm text-gray-900">{selectedItem.id}</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Tên sản phẩm
+                      </label>
+                      <p className="text-sm text-gray-900">
+                        {selectedItem.productName}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Biến thể
+                      </label>
+                      <p className="text-sm text-gray-900">
+                        {selectedItem.variantName}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Nhà cung cấp
+                      </label>
+                      <p className="text-sm text-gray-900">
+                        {selectedItem.supplier}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <h4 className="text-md font-medium text-gray-900 mb-3">
+                      Thông tin tồn kho
+                    </h4>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Tồn kho hiện tại
+                        </label>
+                        <p className="text-lg font-semibold text-gray-900">
+                          {selectedItem.currentStock}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Đã đặt hàng
+                        </label>
+                        <p className="text-lg font-semibold text-yellow-600">
+                          {selectedItem.reservedStock}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Có thể bán
+                        </label>
+                        <p className="text-lg font-semibold text-green-600">
+                          {selectedItem.availableStock}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <h4 className="text-md font-medium text-gray-900 mb-3">
+                      Mức tồn kho
+                    </h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Mức tối thiểu
+                        </label>
+                        <p className="text-sm text-gray-900">
+                          {selectedItem.minStockLevel}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Mức tối đa
+                        </label>
+                        <p className="text-sm text-gray-900">
+                          {selectedItem.maxStockLevel}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <h4 className="text-md font-medium text-gray-900 mb-3">
+                      Thông tin giá
+                    </h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Giá vốn
+                        </label>
+                        <p className="text-sm text-gray-900">
+                          {new Intl.NumberFormat("vi-VN").format(
+                            selectedItem.costPrice
+                          )}{" "}
+                          VNĐ
+                        </p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Giá bán
+                        </label>
+                        <p className="text-sm text-gray-900">
+                          {new Intl.NumberFormat("vi-VN").format(
+                            selectedItem.sellPrice
+                          )}{" "}
+                          VNĐ
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Cập nhật lần cuối
+                      </label>
+                      <p className="text-sm text-gray-900">
+                        {new Date(selectedItem.lastUpdated).toLocaleString(
+                          "vi-VN"
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex justify-end">
+                  <button
+                    onClick={() => setShowDetailModal(false)}
+                    className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                  >
+                    Đóng
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>

@@ -280,7 +280,6 @@ const UserManagement = () => {
           </button>
         </div>
       </div>
-
       {/* Tabs */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="border-b border-gray-200">
@@ -635,142 +634,161 @@ const UserManagement = () => {
             </div>
           )}
         </div>
-      </div>
-
+      </div>{" "}
       {/* User Modal (simplified) */}
       {showUserModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              {selectedUser ? "Edit User" : "Add New User"}
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  defaultValue={selectedUser?.name || ""}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  defaultValue={selectedUser?.email || ""}
-                />
-              </div>{" "}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Role
-                </label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  <option>Super Admin</option>
-                  <option>Manager</option>
-                  <option>Staff</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Trạng thái hoạt động
-                </label>
-                <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  defaultValue={selectedUser?.status || "active"}
-                >
-                  <option value="active">Hoạt động</option>
-                  <option value="inactive">Không hoạt động</option>
-                  <option value="suspended">Tạm khóa</option>
-                  <option value="pending">Chờ xác nhận</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex justify-end space-x-3 mt-6">
-              <button
-                onClick={() => setShowUserModal(false)}
-                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => setShowUserModal(false)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                {selectedUser ? "Update" : "Create"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        <div className="fixed inset-0 z-[60] overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              className="fixed inset-0 bg-black bg-opacity-50 transition-opacity z-10"
+              onClick={() => setShowUserModal(false)}
+            />
 
-      {/* Role Modal (simplified) */}
-      {showRoleModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              {selectedRole ? "Edit Role" : "Add New Role"}
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Role Name
-                </label>
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  defaultValue={selectedRole?.name || ""}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <textarea
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  rows={3}
-                  defaultValue={selectedRole?.description || ""}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Permissions
-                </label>
-                <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
-                  {availablePermissions.map((permission) => (
-                    <label key={permission.id} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        className="rounded text-blue-600 focus:ring-blue-500"
-                        defaultChecked={selectedRole?.permissions.includes(
-                          permission.id
-                        )}
-                      />
-                      <span className="ml-2 text-sm text-gray-700">
-                        {permission.name}
-                      </span>
+            <div className="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full z-20">
+              <div className="bg-white px-6 py-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  {selectedUser ? "Edit User" : "Add New User"}
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Name
                     </label>
-                  ))}
+                    <input
+                      type="text"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      defaultValue={selectedUser?.name || ""}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      defaultValue={selectedUser?.email || ""}
+                    />
+                  </div>{" "}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Role
+                    </label>
+                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <option>Super Admin</option>
+                      <option>Manager</option>
+                      <option>Staff</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Trạng thái hoạt động
+                    </label>
+                    <select
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      defaultValue={selectedUser?.status || "active"}
+                    >
+                      <option value="active">Hoạt động</option>
+                      <option value="inactive">Không hoạt động</option>
+                      <option value="suspended">Tạm khóa</option>
+                      <option value="pending">Chờ xác nhận</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="flex justify-end space-x-3 mt-6">
+                  <button
+                    onClick={() => setShowUserModal(false)}
+                    className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => setShowUserModal(false)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    {selectedUser ? "Update" : "Create"}
+                  </button>
                 </div>
               </div>
             </div>
-            <div className="flex justify-end space-x-3 mt-6">
-              <button
-                onClick={() => setShowRoleModal(false)}
-                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => setShowRoleModal(false)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                {selectedRole ? "Update" : "Create"}
-              </button>
+          </div>
+        </div>
+      )}{" "}
+      {/* Role Modal (simplified) */}
+      {showRoleModal && (
+        <div className="fixed inset-0 z-[60] overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              className="fixed inset-0 bg-black bg-opacity-50 transition-opacity z-10"
+              onClick={() => setShowRoleModal(false)}
+            />
+
+            <div className="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full z-20">
+              <div className="bg-white px-6 py-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  {selectedRole ? "Edit Role" : "Add New Role"}
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Role Name
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      defaultValue={selectedRole?.name || ""}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Description
+                    </label>
+                    <textarea
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      rows={3}
+                      defaultValue={selectedRole?.description || ""}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Permissions
+                    </label>
+                    <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+                      {availablePermissions.map((permission) => (
+                        <label
+                          key={permission.id}
+                          className="flex items-center"
+                        >
+                          <input
+                            type="checkbox"
+                            className="rounded text-blue-600 focus:ring-blue-500"
+                            defaultChecked={selectedRole?.permissions.includes(
+                              permission.id
+                            )}
+                          />
+                          <span className="ml-2 text-sm text-gray-700">
+                            {permission.name}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-end space-x-3 mt-6">
+                  <button
+                    onClick={() => setShowRoleModal(false)}
+                    className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => setShowRoleModal(false)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    {selectedRole ? "Update" : "Create"}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

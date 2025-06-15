@@ -16,6 +16,7 @@ import {
   EyeIcon,
 } from "@heroicons/react/24/outline";
 import { BellIcon as BellSolidIcon } from "@heroicons/react/24/solid";
+import NotificationBadge from "../ui/NotificationBadge";
 import {
   selectNotifications,
   selectOrderNotifications,
@@ -240,17 +241,13 @@ const NotificationCenter = () => {
         className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors"
         title={`Thông báo (${unreadCount} chưa đọc)`}
       >
+        {" "}
         {unreadCount > 0 ? (
           <BellSolidIcon className="h-6 w-6 text-blue-600" />
         ) : (
           <BellIcon className="h-6 w-6" />
         )}
-
-        {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium animate-pulse">
-            {unreadCount > 99 ? "99+" : unreadCount}
-          </span>
-        )}
+        <NotificationBadge count={unreadCount} />
       </button>
 
       {/* Notification Dropdown */}
